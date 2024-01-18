@@ -52,19 +52,7 @@
             })
             <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
             {
-              # nixpkgs.crossSystem.system = aarch64system;
-              #  nixpkgs.config.allowUnsupportedSystem = true;
               nixpkgs.hostPlatform.system = aarch64system;
-              # nixpkgs.buildPlatform.system = "x86_64-linux"; #If you build on x86 other wise changes this.
-              # ... extra configs as above
-              # virtualisation.vmVariant = {
-              # following configuration is added only when building VM with build-vm
-              #   virtualisation = {
-              #     memorySize = 2048; # Use 2048MiB memory.
-              #     cores = 3;
-              #     graphics = false;
-              #   };
-              # };
             }
           ];
 
