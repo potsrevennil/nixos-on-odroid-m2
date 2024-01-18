@@ -16,30 +16,53 @@
     rec {
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
         {
-          system.boot.kernelPackages = aarch64pkgs.linuxPackages_5_15;
-          system.stateVersion = "23.11";
-          # imports = [
-          # ];
           modules = [
+            ({
+              boot.kernelPackages =
+                ({ fetchurl, buildLinux, ... } @ args:
+
+                  buildLinux (args // rec {
+                    version = "6.6.8";
+                    modDirVersion = version;
+
+                    src = fetchurl {
+                      url = "Github:LeeKyuHyuk/linux";
+                      # After the first build attempt, look for "hash mismatch" and then 2 lines below at the "got:" line.
+                      # Use "sha256-....." value here.
+                      hash = "";
+                    };
+                    kernelPatches = [ ];
+
+                    extraConfig = ''
+                  '';
+
+                    extraMeta.branch = "5.4";
+                  } // (args.argsOverride or { }))
+                );
+
+
+              system.stateVersion = "23.11";
+            })
+            # imports = [ ];
             <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
             # <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
             # <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
             # <nixpkgs/nixos/modules/installer/sd-card/sd-image-raspberrypi.nix>
             nixos-hardware.nixosModules.hardkernel-odroid-hc4
             {
-              #nixpkgs.crossSystem.system = aarch64system;
+              # nixpkgs.crossSystem.system = aarch64system;
               #  nixpkgs.config.allowUnsupportedSystem = true;
-              #  nixpkgs.hostPlatform.system = "armv7l-linux";
+              nixpkgs.hostPlatform.system = aarch64system;
               #  nixpkgs.buildPlatform.system = "x86_64-linux"; #If you build on x86 other wise changes this.
               # ... extra configs as above
-              virtualisation.vmVariant = {
-                # following configuration is added only when building VM with build-vm
-                virtualisation = {
-                  memorySize = 2048; # Use 2048MiB memory.
-                  cores = 3;
-                  graphics = false;
-                };
-              };
+              # virtualisation.vmVariant = {
+              # following configuration is added only when building VM with build-vm
+              #   virtualisation = {
+              #     memorySize = 2048; # Use 2048MiB memory.
+              #     cores = 3;
+              #     graphics = false;
+              #   };
+              # };
             }
           ];
 
