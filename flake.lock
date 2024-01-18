@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "linux-rockchip": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1704471273,
+        "narHash": "sha256-d51m5bYES4rkLEXih05XHOSsAEpFPkIp0VVlGrhSrnc=",
+        "owner": "LeeKyuHyuk",
+        "repo": "linux",
+        "rev": "53d8200f48289dc8beb21dd3d307f20dcde42188",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LeeKyuHyuk",
+        "repo": "linux",
+        "type": "github"
+      }
+    },
     "nixos-hardware": {
       "locked": {
         "lastModified": 1705312285,
@@ -33,6 +49,7 @@
     },
     "root": {
       "inputs": {
+        "linux-rockchip": "linux-rockchip",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs"
       }

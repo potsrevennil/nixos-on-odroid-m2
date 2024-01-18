@@ -2,58 +2,60 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+    linux-rockchip.url = "github:LeeKyuHyuk/linux";
+    linux-rockchip.flake = false;
 
   };
   description = "Build image";
-  outputs = { self, nixpkgs, nixos-hardware }:
+  outputs = { self, nixpkgs, nixos-hardware, ... }:
     let
       system = "x86_64-linux";
       x86_64pkgs = nixpkgs.legacyPackages.${system};
 
       aarch64system = "aarch64-linux";
+      pkgs = x86_64pkgs;
       aarch64pkgs = nixpkgs.legacyPackages.${aarch64system};
     in
     rec {
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
         {
+          system = "aarch64-linux";
           modules = [
             ({
               boot.kernelPackages =
-                ({ fetchurl, buildLinux, ... } @ args:
+                let
+                  linux-rockchip = { fetchFromGitHub, buildLinux, ... } @ args:
 
-                  buildLinux (args // rec {
-                    version = "6.6.8";
-                    modDirVersion = version;
+                    buildLinux (args // rec {
+                      version = "6.6.8";
+                      modDirVersion = version;
+                      src = fetchFromGitHub {
+                        owner = "ldicarlo";
+                        repo = "linux";
+                        rev = "v1";
+                        hash = "sha256-d51m5bYES4rkLEXih05XHOSsAEpFPkIp0VVlGrhSrnc=";
+                      };
+                      kernelPatches = [ ];
 
-                    src = fetchurl {
-                      url = "Github:LeeKyuHyuk/linux";
-                      # After the first build attempt, look for "hash mismatch" and then 2 lines below at the "got:" line.
-                      # Use "sha256-....." value here.
-                      hash = "";
-                    };
-                    kernelPatches = [ ];
-
-                    extraConfig = ''
-                  '';
-
-                    extraMeta.branch = "5.4";
-                  } // (args.argsOverride or { }))
-                );
-
-
+                      extraConfig = ''
+                      '';
+                      # extraMeta.platforms = [ "aarch64-linux" ];
+                      extraMeta.branch = "6.6.8";
+                    } // (args.argsOverride or { }));
+                  linux_rchp = pkgs.callPackage linux-rockchip { };
+                in
+                pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+              hardware.deviceTree.enable = true;
+              hardware.deviceTree.filter = "rockchip/rk3566-odroid-m1s.dtb";
+              sdImage.compressImage = false;
               system.stateVersion = "23.11";
             })
-            # imports = [ ];
             <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
-            # <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
-            # <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
-            # <nixpkgs/nixos/modules/installer/sd-card/sd-image-raspberrypi.nix>
-            nixos-hardware.nixosModules.hardkernel-odroid-hc4
             {
               # nixpkgs.crossSystem.system = aarch64system;
               #  nixpkgs.config.allowUnsupportedSystem = true;
               nixpkgs.hostPlatform.system = aarch64system;
-              #  nixpkgs.buildPlatform.system = "x86_64-linux"; #If you build on x86 other wise changes this.
+              # nixpkgs.buildPlatform.system = "x86_64-linux"; #If you build on x86 other wise changes this.
               # ... extra configs as above
               # virtualisation.vmVariant = {
               # following configuration is added only when building VM with build-vm
