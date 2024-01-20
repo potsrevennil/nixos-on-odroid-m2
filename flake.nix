@@ -2,8 +2,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
-    linux-rockchip.url = "github:LeeKyuHyuk/linux";
-    linux-rockchip.flake = false;
+    #linux-rockchip.url = "github:LeeKyuHyuk/linux";
+    #linux-rockchip.flake = false;
 
   };
   description = "Build image";
@@ -34,6 +34,14 @@
         {
           system = "aarch64-linux";
           modules = [
+            ({
+              nixpkgs.overlays = [
+                (final: super: {
+                  makeModulesClosure = x:
+                    super.makeModulesClosure (x // { allowMissing = true; });
+                })
+              ];
+            })
             (
               let
 
@@ -57,11 +65,18 @@
                   } // (args.argsOverride or { }));
                 linux_rchp = pkgs.callPackage linux-rockchip { };
               in
+
               {
+                # nixpkgs.overlays = [
+                #   (final: super: {
+                #     makeModulesClosure = x:
+                #       super.makeModulesClosure (x // { allowMissing = true; });
+                #   })
+                # ];
                 boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
                 hardware.deviceTree.enable = true;
                 #hardware.deviceTree.filter = "rockchip/rk3566-odroid-m1s.dtb";
-                #hardware.deviceTree.dtsFile = "${linux-rockchip}/arch/arm64/boot/dts/rockchip/rk3566-odroid-m1s.dts";
+                hardware.deviceTree.dtbSource = ./dts;
                 sdImage.compressImage = false;
                 system.stateVersion = "23.11";
               }
