@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     #linux-rockchip.url = "github:LeeKyuHyuk/linux";
     #linux-rockchip.flake = false;
@@ -41,6 +41,7 @@
                     super.makeModulesClosure (x // { allowMissing = true; });
                 })
               ];
+              nixpkgs.hostPlatform.system = aarch64system;
             })
             (
               let
@@ -60,20 +61,14 @@
 
                     extraConfig = ''
                       '';
-                    # extraMeta.platforms = [ "aarch64-linux" ];
+                    extraMeta.platforms = [ "aarch64-linux" ];
                     extraMeta.branch = "6.6.8";
                   } // (args.argsOverride or { }));
                 linux_rchp = pkgs.callPackage linux-rockchip { };
               in
 
               {
-                # nixpkgs.overlays = [
-                #   (final: super: {
-                #     makeModulesClosure = x:
-                #       super.makeModulesClosure (x // { allowMissing = true; });
-                #   })
-                # ];
-                boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                boot.kernelPackages = pkgs.linuxPackages_latest; #pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
                 hardware.deviceTree.enable = true;
                 #hardware.deviceTree.filter = "rockchip/rk3566-odroid-m1s.dtb";
                 hardware.deviceTree.dtbSource = ./dts;
@@ -82,9 +77,6 @@
               }
             )
             <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
-            {
-              nixpkgs.hostPlatform.system = aarch64system;
-            }
           ];
 
         };
