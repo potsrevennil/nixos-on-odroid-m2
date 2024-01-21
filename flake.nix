@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     #linux-rockchip.url = "github:LeeKyuHyuk/linux";
     #linux-rockchip.flake = false;
@@ -40,6 +40,11 @@
                   makeModulesClosure = x:
                     super.makeModulesClosure (x // { allowMissing = true; });
                 })
+                (final: super: {
+                  zfs = super.zfs.overrideAttrs (_: {
+                    meta.platforms = [ ];
+                  });
+                })
               ];
               nixpkgs.hostPlatform.system = aarch64system;
             })
@@ -47,31 +52,42 @@
               let
                 linux-rockchip = { fetchFromGitHub, buildLinux, ... } @ args:
                   buildLinux (args // rec {
+                    # version = "6.7.0";
+                    # src = fetchFromGitHub {
+                    #   # Fork of https://github.com/LeeKyuHyuk/linux
+                    #   owner = "torvalds";
+                    #   repo = "linux";
+                    #   rev = "v6.7";
+                    #   hash = "sha256-HC/IOgHqZLBYZFiFPSSTFEbRDpCQ2ckTdBkOODAOTMc=";
+                    # };
                     version = "6.6.8";
-                    modDirVersion = version;
                     src = fetchFromGitHub {
                       # Fork of https://github.com/LeeKyuHyuk/linux
-                      owner = "torvalds";
+                      owner = "ldicarlo";
                       repo = "linux";
-                      rev = "master";
+                      rev = "v1";
                       hash = "sha256-d51m5bYES4rkLEXih05XHOSsAEpFPkIp0VVlGrhSrnc=";
                     };
+                    modDirVersion = version;
                     kernelPatches = [ ];
 
                     extraConfig = ''
                       '';
                     #extraMeta.platforms = [ "aarch64-linux" ];
-                    extraMeta.branch = "6.6.8";
+                    extraMeta.branch = "${version}";
                   } // (args.argsOverride or { }));
                 linux_rchp = pkgs.callPackage linux-rockchip { };
               in
               {
+                # boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" ];
                 nix.package = pkgs.nixFlakes;
                 boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                system.boot.loader.kernelFile = "bzImage";
                 hardware.deviceTree.enable = true;
-                hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
+                # hardware.deviceTree.name = "rk3566-odroid-m1s.dtb";
+                # hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 #hardware.deviceTree.dtbSource = ./dts;
-                #sdImage.compressImage = false;
+                sdImage.compressImage = false;
                 system.stateVersion = "23.11";
               }
             )
