@@ -33,6 +33,7 @@
         {
           system = "aarch64-linux";
           modules = [
+            <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
             ({
               nixpkgs.overlays = [
                 (final: super: {
@@ -44,16 +45,15 @@
             })
             (
               let
-
                 linux-rockchip = { fetchFromGitHub, buildLinux, ... } @ args:
-
                   buildLinux (args // rec {
                     version = "6.6.8";
                     modDirVersion = version;
                     src = fetchFromGitHub {
-                      owner = "ldicarlo";
+                      # Fork of https://github.com/LeeKyuHyuk/linux
+                      owner = "torvalds";
                       repo = "linux";
-                      rev = "v1";
+                      rev = "master";
                       hash = "sha256-d51m5bYES4rkLEXih05XHOSsAEpFPkIp0VVlGrhSrnc=";
                     };
                     kernelPatches = [ ];
@@ -61,7 +61,7 @@
                     extraConfig = ''
                       '';
                     #extraMeta.platforms = [ "aarch64-linux" ];
-                    extraMeta.branch = "odroid-m1s-6.6.8";
+                    extraMeta.branch = "6.6.8";
                   } // (args.argsOverride or { }));
                 linux_rchp = pkgs.callPackage linux-rockchip { };
               in
@@ -71,11 +71,11 @@
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 #hardware.deviceTree.dtbSource = ./dts;
-                sdImage.compressImage = false;
+                #sdImage.compressImage = false;
                 system.stateVersion = "23.11";
               }
             )
-            <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
+
           ];
 
         };
