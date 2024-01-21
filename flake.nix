@@ -31,7 +31,7 @@
 
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
         {
-          # system = "aarch64-linux";
+          system = "aarch64-linux";
           modules = [
             ({
               nixpkgs.overlays = [
@@ -61,16 +61,16 @@
                     extraConfig = ''
                       '';
                     #extraMeta.platforms = [ "aarch64-linux" ];
-                    extraMeta.branch = "6.6.8";
+                    extraMeta.branch = "odroid-m1s-6.6.8";
                   } // (args.argsOverride or { }));
                 linux_rchp = pkgs.callPackage linux-rockchip { };
               in
-
               {
-                # boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                nix.package = pkgs.nixFlakes;
+                boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
                 hardware.deviceTree.enable = true;
-                # hardware.deviceTree.filter = "rockchip/rk3566-odroid-m1s.dtb";
-                hardware.deviceTree.dtbSource = ./dts;
+                hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
+                #hardware.deviceTree.dtbSource = ./dts;
                 sdImage.compressImage = false;
                 system.stateVersion = "23.11";
               }
