@@ -67,12 +67,12 @@
               in
 
               {
-                boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
-                # hardware.deviceTree.enable = true;
+                # boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                hardware.deviceTree.enable = true;
                 # hardware.deviceTree.filter = "rockchip/rk3566-odroid-m1s.dtb";
-                # hardware.deviceTree.dtbSource = ./dts;
-                #sdImage.compressImage = false;
-                system.stateVersion = "22.11";
+                hardware.deviceTree.dtbSource = ./dts;
+                sdImage.compressImage = false;
+                system.stateVersion = "23.11";
               }
             )
             <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
