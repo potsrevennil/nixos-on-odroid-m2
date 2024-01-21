@@ -2,9 +2,6 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
-    #linux-rockchip.url = "github:LeeKyuHyuk/linux";
-    #linux-rockchip.flake = false;
-
   };
   description = "Build image";
   outputs = { self, nixpkgs, nixos-hardware, ... }:
@@ -13,17 +10,6 @@
       x86_64pkgs = nixpkgs.legacyPackages.${system};
 
       aarch64system = "aarch64-linux";
-      # pkgs = import nixpkgs {
-      #   inherit system;
-
-      #   overlays = [
-      #     (final: super: {
-      #       makeModulesClosure = x:
-      #         super.makeModulesClosure (x // { allowMissing = true; });
-      #     })
-      #   ];
-      # };
-
       pkgs = x86_64pkgs;
       # aarch64pkgs = nixpkgs.legacyPackages.${aarch64system};
     in
@@ -31,7 +17,7 @@
 
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
         {
-          system = "aarch64-linux";
+          system = "${aarch64system}";
           modules = [
             <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
             ({
@@ -79,14 +65,12 @@
                 linux_rchp = pkgs.callPackage linux-rockchip { };
               in
               {
-                # boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" ];
                 nix.package = pkgs.nixFlakes;
                 boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
                 system.boot.loader.kernelFile = "bzImage";
                 hardware.deviceTree.enable = true;
-                # hardware.deviceTree.name = "rk3566-odroid-m1s.dtb";
-                # hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
-                #hardware.deviceTree.dtbSource = ./dts;
+                hardware.deviceTree.name = "rk3566-odroid-m1s.dts";
+                hardware.deviceTree.dtbSource = ./dts;
                 sdImage.compressImage = false;
                 system.stateVersion = "23.11";
               }
