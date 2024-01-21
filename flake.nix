@@ -13,26 +13,25 @@
       x86_64pkgs = nixpkgs.legacyPackages.${system};
 
       aarch64system = "aarch64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [
-          (final: super: {
-            makeModulesClosure = x:
-              super.makeModulesClosure (x // { allowMissing = true; });
-          })
-        ];
-      };
+      # pkgs = import nixpkgs {
+      #   inherit system;
 
-      # pkgs = x86_64pkgs;
-      aarch64pkgs = nixpkgs.legacyPackages.${aarch64system};
+      #   overlays = [
+      #     (final: super: {
+      #       makeModulesClosure = x:
+      #         super.makeModulesClosure (x // { allowMissing = true; });
+      #     })
+      #   ];
+      # };
 
-
+      pkgs = x86_64pkgs;
+      # aarch64pkgs = nixpkgs.legacyPackages.${aarch64system};
     in
     rec {
 
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
         {
-          system = "aarch64-linux";
+          # system = "aarch64-linux";
           modules = [
             ({
               nixpkgs.overlays = [
@@ -61,19 +60,19 @@
 
                     extraConfig = ''
                       '';
-                    extraMeta.platforms = [ "aarch64-linux" ];
+                    #extraMeta.platforms = [ "aarch64-linux" ];
                     extraMeta.branch = "6.6.8";
                   } // (args.argsOverride or { }));
                 linux_rchp = pkgs.callPackage linux-rockchip { };
               in
 
               {
-                boot.kernelPackages = pkgs.linuxPackages_latest; #pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
-                hardware.deviceTree.enable = true;
-                #hardware.deviceTree.filter = "rockchip/rk3566-odroid-m1s.dtb";
-                hardware.deviceTree.dtbSource = ./dts;
-                sdImage.compressImage = false;
-                system.stateVersion = "23.11";
+                boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                # hardware.deviceTree.enable = true;
+                # hardware.deviceTree.filter = "rockchip/rk3566-odroid-m1s.dtb";
+                # hardware.deviceTree.dtbSource = ./dts;
+                #sdImage.compressImage = false;
+                system.stateVersion = "22.11";
               }
             )
             <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
