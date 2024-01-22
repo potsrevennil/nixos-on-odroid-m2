@@ -35,8 +35,10 @@
               nixpkgs.hostPlatform.system = aarch64system;
             })
             (
+              { pkgs, config, ... }:
+
               let
-                linux-rockchip = { fetchFromGitHub, buildLinux, ... } @ args:
+                linux-rockchip = { fetchFromGitHub, buildLinux, config, ... } @ args:
                   buildLinux (args // rec {
                     # version = "6.7.0";
                     # src = fetchFromGitHub {
@@ -65,14 +67,34 @@
                 linux_rchp = pkgs.callPackage linux-rockchip { };
               in
               {
+                imports = [
+                  ./kboot-conf
+                ];
+                boot.loader.kboot-conf.enable = true;
                 nix.package = pkgs.nixFlakes;
-                boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
-                system.boot.loader.kernelFile = "bzImage";
+                # boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                # system.boot.loader.kernelFile = "bzImage";
+                boot.kernelParams = [ "console=ttyS2,1500000" ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rk3566-odroid-m1s.dts";
                 hardware.deviceTree.dtbSource = ./dts;
                 sdImage.compressImage = false;
                 system.stateVersion = "23.11";
+                sdImage = {
+                  #compressImage = false;
+                  populateFirmwareCommands =
+                    let
+                      configTxt = pkgs.writeText "README" ''
+                        Nothing to see here. This empty partition is here because I don't know how to turn its creation off.
+                      '';
+                    in
+                    ''
+                      cp ${configTxt} firmware/README
+                    '';
+                  populateRootCommands = ''
+                    ${config.boot.loader.kboot-conf.populateCmd} -c ${config.system.build.toplevel} -d ./files/kboot.conf
+                  '';
+                };
               }
             )
 
