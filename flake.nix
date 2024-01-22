@@ -38,33 +38,33 @@
               { pkgs, config, ... }:
 
               let
-                linux-rockchip = { fetchFromGitHub, buildLinux, config, ... } @ args:
-                  buildLinux (args // rec {
-                    # version = "6.7.0";
-                    # src = fetchFromGitHub {
-                    #   # Fork of https://github.com/LeeKyuHyuk/linux
-                    #   owner = "torvalds";
-                    #   repo = "linux";
-                    #   rev = "v6.7";
-                    #   hash = "sha256-HC/IOgHqZLBYZFiFPSSTFEbRDpCQ2ckTdBkOODAOTMc=";
-                    # };
-                    version = "6.6.8";
-                    src = fetchFromGitHub {
-                      # Fork of https://github.com/LeeKyuHyuk/linux
-                      owner = "ldicarlo";
-                      repo = "linux";
-                      rev = "v1";
-                      hash = "sha256-d51m5bYES4rkLEXih05XHOSsAEpFPkIp0VVlGrhSrnc=";
-                    };
-                    modDirVersion = version;
-                    kernelPatches = [ ];
+                # linux-rockchip = { fetchFromGitHub, buildLinux, config, ... } @ args:
+                #   buildLinux (args // rec {
+                #     version = "6.7.0";
+                #     src = fetchFromGitHub {
+                #       # Fork of https://github.com/LeeKyuHyuk/linux
+                #       owner = "torvalds";
+                #       repo = "linux";
+                #       rev = "v6.7";
+                #       hash = "sha256-HC/IOgHqZLBYZFiFPSSTFEbRDpCQ2ckTdBkOODAOTMc=";
+                #     };
+                #     version = "6.6.8";
+                #     src = fetchFromGitHub {
+                #       # Fork of https://github.com/LeeKyuHyuk/linux
+                #       owner = "ldicarlo";
+                #       repo = "linux";
+                #       rev = "v1";
+                #       hash = "sha256-d51m5bYES4rkLEXih05XHOSsAEpFPkIp0VVlGrhSrnc=";
+                #     };
+                #     modDirVersion = version;
+                #     kernelPatches = [ ];
 
-                    extraConfig = ''
-                      '';
-                    #extraMeta.platforms = [ "aarch64-linux" ];
-                    extraMeta.branch = "${version}";
-                  } // (args.argsOverride or { }));
-                linux_rchp = pkgs.callPackage linux-rockchip { };
+                #     extraConfig = ''
+                #       '';
+                #     #extraMeta.platforms = [ "aarch64-linux" ];
+                #     extraMeta.branch = "${version}";
+                #   } // (args.argsOverride or { }));
+                # linux_rchp = pkgs.callPackage linux-rockchip { };
               in
               {
                 imports = [
@@ -78,10 +78,10 @@
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rk3566-odroid-m1s.dts";
                 hardware.deviceTree.dtbSource = ./dts;
-                sdImage.compressImage = false;
                 system.stateVersion = "23.11";
                 sdImage = {
-                  #compressImage = false;
+                  compressImage = false;
+
                   populateFirmwareCommands =
                     let
                       configTxt = pkgs.writeText "README" ''
@@ -104,7 +104,7 @@
       images.odroid-m1s = nixosConfigurations.odroid-m1s.config.system.build.sdImage;
       devShells.x86_64-linux.default = x86_64pkgs.mkShell {
         buildInputs = with x86_64pkgs;
-          [ zstd ];
+          [ ];
       };
     };
 }
