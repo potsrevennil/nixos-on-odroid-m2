@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
   description = "Build image";
@@ -38,46 +38,55 @@
               { pkgs, config, ... }:
 
               let
-                # linux-rockchip = { fetchFromGitHub, buildLinux, config, ... } @ args:
-                #   buildLinux (args // rec {
-                #     version = "6.7.0";
-                #     src = fetchFromGitHub {
-                #       # Fork of https://github.com/LeeKyuHyuk/linux
-                #       owner = "torvalds";
-                #       repo = "linux";
-                #       rev = "v6.7";
-                #       hash = "sha256-HC/IOgHqZLBYZFiFPSSTFEbRDpCQ2ckTdBkOODAOTMc=";
-                #     };
-                #     version = "6.6.8";
-                #     src = fetchFromGitHub {
-                #       # Fork of https://github.com/LeeKyuHyuk/linux
-                #       owner = "ldicarlo";
-                #       repo = "linux";
-                #       rev = "v1";
-                #       hash = "sha256-d51m5bYES4rkLEXih05XHOSsAEpFPkIp0VVlGrhSrnc=";
-                #     };
-                #     modDirVersion = version;
-                #     kernelPatches = [ ];
+                linux-rockchip = { fetchFromGitHub, buildLinux, config, ... } @ args:
+                  buildLinux (args // rec {
+                    #     version = "6.7.0";
+                    #     src = fetchFromGitHub {
+                    #       # Fork of https://github.com/LeeKyuHyuk/linux
+                    #       owner = "torvalds";
+                    #       repo = "linux";
+                    #       rev = "v6.7";
+                    #       hash = "sha256-HC/IOgHqZLBYZFiFPSSTFEbRDpCQ2ckTdBkOODAOTMc=";
+                    #     };
+                    version = "6.6.8";
+                    src = fetchFromGitHub {
+                      # Fork of https://github.com/LeeKyuHyuk/linux
+                      owner = "ldicarlo";
+                      repo = "linux";
+                      rev = "v1";
+                      hash = "sha256-d51m5bYES4rkLEXih05XHOSsAEpFPkIp0VVlGrhSrnc=";
+                    };
+                    modDirVersion = version;
+                    kernelPatches = [ ];
 
-                #     extraConfig = ''
-                #       '';
-                #     #extraMeta.platforms = [ "aarch64-linux" ];
-                #     extraMeta.branch = "${version}";
-                #   } // (args.argsOverride or { }));
-                # linux_rchp = pkgs.callPackage linux-rockchip { };
+                    #     extraConfig = ''
+                    #       '';
+                    #     #extraMeta.platforms = [ "aarch64-linux" ];
+                    extraMeta.branch = "${version}";
+                  } // (args.argsOverride or { }));
+                linux_rchp = pkgs.callPackage linux-rockchip { };
               in
               {
                 imports = [
                   ./kboot-conf
                 ];
+                boot.loader.grub.enable = false;
                 boot.loader.kboot-conf.enable = true;
+                boot.loader.grub.device = "nodev";
+                boot.loader.grub.extraInstallCommands = ''
+                  grep -E '(menuentry|initrd|linux)' "/boot/grub/grub.cfg"|
+                  sed 's#($drive1)/##'|
+                  sed -re 's#-initrd$#-initrd\n  devicetree /rk3566-odroid-m1s.dtb\n}#' > "/boot/grub.cfg"
+                  cp "${config.boot.kernelPackages.kernel.outPath}/dtbs/rockchip/rk3566-odroid-m1s.dtb" /boot
+
+                '';
                 nix.package = pkgs.nixFlakes;
-                # boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
-                # system.boot.loader.kernelFile = "bzImage";
+                boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                system.boot.loader.kernelFile = "bzImage";
                 boot.kernelParams = [ "console=ttyS2,1500000" ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rk3566-odroid-m1s.dts";
-                hardware.deviceTree.dtbSource = ./dts;
+                #hardware.deviceTree.dtbSource = ./dts;
                 system.stateVersion = "23.11";
                 sdImage = {
                   compressImage = false;
@@ -85,8 +94,24 @@
                   populateFirmwareCommands =
                     let
                       configTxt = pkgs.writeText "README" ''
-                        Nothing to see here. This empty partition is here because I don't know how to turn its creation off.
-                      '';
+                        Nothing
+                        to
+                        see
+                        here.This
+                        empty
+                        partition
+                        is
+                        here
+                        because
+                        I
+                        don't
+                        know
+                        how
+                        to
+                        turn
+                        its
+                        creation
+                        off.'';
                     in
                     ''
                       cp ${configTxt} firmware/README
@@ -104,7 +129,9 @@
       images.odroid-m1s = nixosConfigurations.odroid-m1s.config.system.build.sdImage;
       devShells.x86_64-linux.default = x86_64pkgs.mkShell {
         buildInputs = with x86_64pkgs;
-          [ ];
+          [ dtc ];
       };
     };
 }
+
+
