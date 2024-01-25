@@ -82,7 +82,7 @@
                 '';
                 nix.package = pkgs.nixFlakes;
                 boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
-                system.boot.loader.kernelFile = "bzImage";
+                # system.boot.loader.kernelFile = "bzImage";
                 boot.kernelParams = [ "console=ttyS2,1500000" ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rk3566-odroid-m1s.dts";
