@@ -79,7 +79,6 @@
                   sed 's#($drive1)/##'|
                   sed -re 's#-initrd$#-initrd\n  devicetree /rk3566-odroid-m1s.dtb\n}#' > "/boot/grub.cfg"
                   cp "${config.boot.kernelPackages.kernel.outPath}/dtbs/rockchip/rk3566-odroid-m1s.dtb" /boot
-
                 '';
                 nix.package = pkgs.nixFlakes;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
@@ -96,7 +95,7 @@
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 # hardware.deviceTree.dtbSource = ./dtbs;
-                system.stateVersion = "23.11";
+                system.stateVersion = "24.05";
                 sdImage = {
                   compressImage = false;
 
