@@ -19,7 +19,7 @@
         {
           system = "${aarch64system}";
           modules = [
-            <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
+            # <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
             ({
               nixpkgs.overlays = [
                 (final: super: {
@@ -69,6 +69,7 @@
               {
                 imports = [
                   ./kboot-conf
+                  "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
                 ];
                 boot.loader.grub.enable = false;
                 boot.loader.kboot-conf.enable = true;
@@ -81,12 +82,19 @@
 
                 '';
                 nix.package = pkgs.nixFlakes;
-                boot.kernelPackages = pkgs.linuxPackages_latest;
-                # boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
+                # boot.kernelPackages = pkgs.linuxPackages_latest;
+                boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
                 # system.boot.loader.kernelFile = "bzImage";
                 boot.kernelParams = [ "console=ttyS2,1500000" ];
+                boot.initrd.availableKernelModules = [
+                  "nvme"
+                  "nvme-core"
+                  "phy-rockchip-naneng-combphy"
+                  "phy-rockchip-snps-pcie3"
+                ];
                 hardware.deviceTree.enable = true;
-                hardware.deviceTree.name = "rk3566-odroid-m1s.dtb";
+                hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 # hardware.deviceTree.dtbSource = ./dtbs;
                 system.stateVersion = "23.11";
                 sdImage = {
