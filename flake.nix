@@ -120,7 +120,7 @@
       images.odroid-m1s = nixosConfigurations.odroid-m1s.config.system.build.sdImage;
       devShells.x86_64-linux.default = x86_64pkgs.mkShell {
         buildInputs = with x86_64pkgs;
-          [ dtc ];
+          [ dtc screen minicom ];
       };
     };
 }
