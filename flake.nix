@@ -92,7 +92,7 @@
                   "phy-rockchip-snps-pcie3"
                 ];
                 hardware.deviceTree.enable = true;
-                hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
+                hardware.deviceTree.name = "rk3566-odroid-m1s.dtb";
                 hardware.deviceTree.dtbSource = ./dtbs;
                 system.stateVersion = "24.05";
                 sdImage = {
