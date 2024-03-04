@@ -72,13 +72,13 @@
                 ];
                 boot.loader.grub.enable = false;
                 boot.loader.kboot-conf.enable = true;
-                boot.loader.grub.device = "nodev";
-                boot.loader.grub.extraInstallCommands = ''
-                  grep -E '(menuentry|initrd|linux)' "/boot/grub/grub.cfg"|
-                  sed 's#($drive1)/##'|
-                  sed -re 's#-initrd$#-initrd\n  devicetree /rk3566-odroid-m1s.dtb\n}#' > "/boot/grub.cfg"
-                  cp "${config.boot.kernelPackages.kernel.outPath}/dtbs/rockchip/rk3566-odroid-m1s.dtb" /boot/
-                '';
+                # boot.loader.grub.device = "nodev";
+                # boot.loader.grub.extraInstallCommands = ''
+                #   grep -E '(menuentry|initrd|linux)' "/boot/grub/grub.cfg"|
+                #   sed 's#($drive1)/##'|
+                #   sed -re 's#-initrd$#-initrd\n  devicetree /rk3566-odroid-m1s.dtb\n}#' > "/boot/grub.cfg"
+                #   cp "${config.boot.kernelPackages.kernel.outPath}/dtbs/rockchip/rk3566-odroid-m1s.dtb" /boot/
+                # '';
                 nix.package = pkgs.nixFlakes;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
                 boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -92,8 +92,8 @@
                   "phy-rockchip-snps-pcie3"
                 ];
                 hardware.deviceTree.enable = true;
-                hardware.deviceTree.name = "rk3566-odroid-m1s.dtb";
-                hardware.deviceTree.dtbSource = ./dtbs;
+                hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
+                # hardware.deviceTree.dtbSource = ./dtbs;
                 system.stateVersion = "24.05";
                 sdImage = {
                   compressImage = false;
