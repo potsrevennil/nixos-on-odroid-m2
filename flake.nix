@@ -67,18 +67,11 @@
               in
               {
                 imports = [
-                  ./kboot-conf
+                  #    ./kboot-conf
                   "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
                 ];
                 boot.loader.grub.enable = false;
-                boot.loader.kboot-conf.enable = true;
-                # boot.loader.grub.device = "nodev";
-                # boot.loader.grub.extraInstallCommands = ''
-                #   grep -E '(menuentry|initrd|linux)' "/boot/grub/grub.cfg"|
-                #   sed 's#($drive1)/##'|
-                #   sed -re 's#-initrd$#-initrd\n  devicetree /rk3566-odroid-m1s.dtb\n}#' > "/boot/grub.cfg"
-                #   cp "${config.boot.kernelPackages.kernel.outPath}/dtbs/rockchip/rk3566-odroid-m1s.dtb" /boot/
-                # '';
+                #    boot.loader.kboot-conf.enable = true;
                 nix.package = pkgs.nixFlakes;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
                 boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -88,8 +81,8 @@
                 boot.initrd.availableKernelModules = [
                   "nvme"
                   "nvme-core"
-                  "phy-rockchip-naneng-combphy"
-                  "phy-rockchip-snps-pcie3"
+                  #        "phy-rockchip-naneng-combphy"
+                  #        "phy-rockchip-snps-pcie3"
                 ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
@@ -106,10 +99,21 @@
                     ''
                       cp ${configTxt} firmware/README
                     '';
-                  populateRootCommands = ''
-                    ${config.boot.loader.kboot-conf.populateCmd} -c ${config.system.build.toplevel} -d ./files/kboot.conf
-                  '';
+                  # populateRootCommands = ''
+                  #   ${config.boot.loader.kboot-conf.populateCmd} -c ${config.system.build.toplevel} -d ./files/kboot.conf
+                  # '';
                 };
+
+                environment.systemPackages = [
+                  pkgs.git #gotta have git
+                ];
+
+
+                services.openssh = {
+                  enable = true;
+                  settings.PermitRootLogin = "yes";
+                };
+                users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
               }
             )
 
