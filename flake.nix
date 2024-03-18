@@ -60,7 +60,7 @@
                     kernelPatches = [ ];
                     extraConfig = ''
                           '';
-                    #extraMeta.platforms = [ "aarch64-linux" ];
+                    extraMeta.platforms = [ "aarch64-linux" ];
                     extraMeta.branch = "${version}";
                   } // (args.argsOverride or { }));
                 linux_rchp = pkgs.callPackage linux-rockchip { };
@@ -74,8 +74,8 @@
                 #    boot.loader.kboot-conf.enable = true;
                 nix.package = pkgs.nixFlakes;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
-                boot.kernelPackages = pkgs.linuxPackages_latest;
-                # boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                # boot.kernelPackages = pkgs.linuxPackages_latest;
+                boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
                 # system.boot.loader.kernelFile = "bzImage";
                 boot.kernelParams = [ "console=ttyS2,1500000" ];
                 boot.initrd.availableKernelModules = [
