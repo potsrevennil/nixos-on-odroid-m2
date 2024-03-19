@@ -67,22 +67,26 @@
               in
               {
                 imports = [
-                  #    ./kboot-conf
+                  ./kboot-conf
                   "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
                 ];
                 boot.loader.grub.enable = false;
-                #    boot.loader.kboot-conf.enable = true;
+                boot.loader.kboot-conf.enable = true;
                 nix.package = pkgs.nixFlakes;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
+                nix.extraOptions = ''
+                  experimental-features = nix-command flakes
+                '';
                 # boot.kernelPackages = pkgs.linuxPackages_latest;
                 boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
+                boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" ];
                 # system.boot.loader.kernelFile = "bzImage";
-                boot.kernelParams = [ "console=ttyS2,1500000" ];
+                boot.kernelParams = [ "console=ttyS2,1500000" "debug" ];
                 boot.initrd.availableKernelModules = [
                   "nvme"
                   "nvme-core"
-                  #        "phy-rockchip-naneng-combphy"
-                  #        "phy-rockchip-snps-pcie3"
+                  "phy-rockchip-naneng-combphy"
+                  "phy-rockchip-snps-pcie3"
                 ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
@@ -99,9 +103,9 @@
                     ''
                       cp ${configTxt} firmware/README
                     '';
-                  # populateRootCommands = ''
-                  #   ${config.boot.loader.kboot-conf.populateCmd} -c ${config.system.build.toplevel} -d ./files/kboot.conf
-                  # '';
+                  populateRootCommands = ''
+                    ${config.boot.loader.kboot-conf.populateCmd} -c ${config.system.build.toplevel} -d ./files/kboot.conf
+                  '';
                 };
 
                 environment.systemPackages = [
