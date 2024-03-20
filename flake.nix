@@ -16,10 +16,33 @@
       aarch64system = "aarch64-linux";
       pkgs = x86_64pkgs;
       # aarch64pkgs = nixpkgs.legacyPackages.${aarch64system};
-      uboot-pkg = (pkgs.buildUBoot {
+      uboot = (pkgs.buildUBoot {
         version = uboot-src.shortRev;
         src = uboot-src;
+        defconfig = "odroid_m1s_defconfig";
+        filesToInstall = [
+          "u-boot.itb"
+          "spl/u-boot-spl.bin"
+        ];
       });
+      firmware = pkgs.stdenvNoCC.mkDerivation {
+        name = "firmware-odroid-m1s";
+        dontUnpack = true;
+        nativeBuildInputs = [ pkgs.dtc pkgs.ubootTools ];
+        installPhase = ''
+          runHook preInstall
+
+          mkdir -p "$out/"
+
+          cp ${uboot}/u-boot-spl.bin u-boot-spl.bin
+          spl_tool -c -f ./u-boot-spl.bin
+
+          install -Dm444 ./u-boot-spl.bin.normal.out $out/u-boot-spl.bin.normal.out
+          install -Dm444 ${uboot}/u-boot.itb $out/odroid_m1s_payload.img
+
+          runHook postInstall
+        '';
+      };
     in
     rec {
 
@@ -38,6 +61,9 @@
                   zfs = super.zfs.overrideAttrs (_: {
                     meta.platforms = [ ];
                   });
+                })
+                (self: super: {
+                  uboot = super.callPackage uboot { };
                 })
 
               ];
@@ -76,19 +102,19 @@
               in
               {
                 imports = [
-                  ./kboot-conf
+                  # ./kboot-conf
                   "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
                   ({
                     nixpkgs.overlays =
                       [
                         (self: super: {
-                          uboot = super.callPackage uboot-pkg { };
+                          uboot = super.callPackage uboot { };
                         })
                       ];
                   })
                 ];
                 boot.loader.grub.enable = false;
-                boot.loader.kboot-conf.enable = true;
+                # boot.loader.kboot-conf.enable = true;
                 nix.package = pkgs.nixFlakes;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
                 nix.extraOptions = ''
@@ -111,7 +137,8 @@
                 system.stateVersion = "24.05";
                 sdImage = {
                   compressImage = false;
-
+                  spl.image = "${firmware}/u-boot-spl.bin.normal.out";
+                  uboot.image = "${firmware}/odroid_m1s_payload.img";
                   populateFirmwareCommands =
                     let
                       configTxt = pkgs.writeText "README" ''
@@ -120,9 +147,9 @@
                     ''
                       cp ${configTxt} firmware/README
                     '';
-                  populateRootCommands = ''
-                    ${config.boot.loader.kboot-conf.populateCmd} -c ${config.system.build.toplevel} -d ./files/kboot.conf
-                  '';
+                  # populateRootCommands = ''
+                  #   ${config.boot.loader.kboot-conf.populateCmd} -c ${config.system.build.toplevel} -d ./files/kboot.conf
+                  # '';
                 };
 
                 environment.systemPackages = [
