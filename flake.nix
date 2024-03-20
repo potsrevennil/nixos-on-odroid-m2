@@ -25,24 +25,24 @@
           "spl/u-boot-spl.bin"
         ];
       });
-      # firmware = pkgs.stdenvNoCC.mkDerivation {
-      #   name = "firmware-odroid-m1s";
-      #   dontUnpack = true;
-      #   nativeBuildInputs = [ pkgs.dtc pkgs.ubootTools ];
-      #   installPhase = ''
-      #     runHook preInstall
+      firmware = pkgs.stdenvNoCC.mkDerivation {
+        name = "firmware-odroid-m1s";
+        dontUnpack = true;
+        nativeBuildInputs = [ pkgs.dtc pkgs.ubootTools ];
+        installPhase = ''
+          runHook preInstall
 
-      #     mkdir -p "$out/"
+          mkdir -p "$out/"
 
-      #     cp ${uboot}/u-boot-spl.bin u-boot-spl.bin
-      #     spl_tool -c -f ./u-boot-spl.bin
+          cp ${uboot}/u-boot-spl.bin u-boot-spl.bin
+          spl_tool -c -f ./u-boot-spl.bin
 
-      #     install -Dm444 ./u-boot-spl.bin.normal.out $out/u-boot-spl.bin.normal.out
-      #     install -Dm444 ${uboot}/u-boot.itb $out/odroid_m1s_payload.img
+          install -Dm444 ./u-boot-spl.bin.normal.out $out/u-boot-spl.bin.normal.out
+          install -Dm444 ${uboot}/u-boot.itb $out/odroid_m1s_payload.img
 
-      #     runHook postInstall
-      #   '';
-      # };
+          runHook postInstall
+        '';
+      };
     in
     rec {
 
@@ -145,6 +145,9 @@
                     ''
                       cp ${configTxt} firmware/README
                     '';
+                  postBuildCommands = ''
+                    dd if=${uboot}/u-boot-sunxi-with-spl.bin of=$img bs=1024 seek=8 conv=notrunc
+                  '';
                   # populateRootCommands = ''
                   #   ${config.boot.loader.kboot-conf.populateCmd} -c ${config.system.build.toplevel} -d ./files/kboot.conf
                   # '';
