@@ -2,9 +2,13 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+    uboot-src = {
+      flake = false;
+      url = "github:ldicarlo/u-boot-m1s";
+    };
   };
   description = "Build image";
-  outputs = { self, nixpkgs, nixos-hardware, ... }:
+  outputs = { self, nixpkgs, uboot-src, nixos-hardware, ... }:
     let
       system = "x86_64-linux";
       x86_64pkgs = nixpkgs.legacyPackages.${system};
@@ -12,6 +16,10 @@
       aarch64system = "aarch64-linux";
       pkgs = x86_64pkgs;
       # aarch64pkgs = nixpkgs.legacyPackages.${aarch64system};
+      uboot-pkg = (pkgs.buildUBoot {
+        version = uboot-src.shortRev;
+        src = uboot-src;
+      });
     in
     rec {
 
@@ -31,6 +39,7 @@
                     meta.platforms = [ ];
                   });
                 })
+
               ];
               nixpkgs.hostPlatform.system = aarch64system;
             })
@@ -69,6 +78,14 @@
                 imports = [
                   ./kboot-conf
                   "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+                  ({
+                    nixpkgs.overlays =
+                      [
+                        (self: super: {
+                          uboot = super.callPackage uboot-pkg { };
+                        })
+                      ];
+                  })
                 ];
                 boot.loader.grub.enable = false;
                 boot.loader.kboot-conf.enable = true;
@@ -125,10 +142,11 @@
 
         };
       images.odroid-m1s = nixosConfigurations.odroid-m1s.config.system.build.sdImage;
-      devShells.x86_64-linux.default = x86_64pkgs.mkShell {
-        buildInputs = with x86_64pkgs;
-          [ dtc minicom screen picocom usbutils ];
-      };
+      devShells.x86_64-linux.default = x86_64pkgs.mkShell
+        {
+          buildInputs = with x86_64pkgs;
+            [ dtc minicom screen picocom usbutils ];
+        };
     };
 }
 

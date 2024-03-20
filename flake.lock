@@ -34,7 +34,24 @@
     "root": {
       "inputs": {
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "uboot-src": "uboot-src"
+      }
+    },
+    "uboot-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1710939316,
+        "narHash": "sha256-F1JCtaV2ccT+PNv42+2USEYzaTSY2XvIHx4VEsYBIoM=",
+        "owner": "ldicarlo",
+        "repo": "u-boot-m1s",
+        "rev": "606d54847b616bc38dec0d715cfbf3015f963c70",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ldicarlo",
+        "repo": "u-boot-m1s",
+        "type": "github"
       }
     }
   },
