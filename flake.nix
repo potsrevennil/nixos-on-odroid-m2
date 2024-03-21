@@ -11,7 +11,11 @@
   outputs = { self, nixpkgs, uboot-src, nixos-hardware, ... }:
     let
       system = "x86_64-linux";
-      x86_64pkgs = nixpkgs.legacyPackages.${system};
+      x86_64pkgs = import <nixpkgs> {
+        crossSystem = {
+          config = "aarch64-unknown-linux-gnu";
+        };
+      };
 
       aarch64system = "aarch64-linux";
       pkgs = x86_64pkgs;
@@ -20,16 +24,24 @@
         version = uboot-src.shortRev;
         src = uboot-src;
         defconfig = "odroid-m1s-rk3566_defconfig";
-        # extraMeta.platforms = [ "aarch64-linux" ];
+        extraMeta.platforms = [ "aarch64-linux" ];
         filesToInstall = [
           #   "u-boot.itb"
           #   "spl/u-boot-spl.bin"
         ];
+        makeFlags = [
+          # "ARCH=arm64"
+          "SHELL=${pkgs.bash}/bin/bash"
+          "DTC=${pkgs.dtc}/bin/dtc"
+          "CROSS_COMPILE=${pkgs.stdenv.cc.targetPrefix}"
+
+        ];
+        patches = [ ];
       });
       firmware = pkgs.stdenvNoCC.mkDerivation {
         name = "firmware-odroid-m1s";
         dontUnpack = true;
-        nativeBuildInputs = [ pkgs.dtc pkgs.ubootTools ];
+        nativeBuildInputs = with pkgs; [ dtc ubootTools bison flex ];
         installPhase = ''
           runHook preInstall
 
@@ -174,7 +186,17 @@
       devShells.x86_64-linux.default = x86_64pkgs.mkShell
         {
           buildInputs = with x86_64pkgs;
-            [ dtc minicom screen picocom usbutils ];
+            [
+              dtc
+              minicom
+              screen
+              picocom
+              usbutils
+              zlib
+              bison
+              flex
+              gcc
+            ];
         };
     };
 }
