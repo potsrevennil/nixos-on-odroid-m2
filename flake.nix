@@ -4,7 +4,7 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     uboot-src = {
       flake = false;
-      url = "github:ldicarlo/u-boot-m1s";
+      url = "github:ldicarlo/u-boot-m1s/uboot-m1s";
     };
   };
   description = "Build image";
@@ -19,10 +19,11 @@
       uboot = (pkgs.buildUBoot {
         version = uboot-src.shortRev;
         src = uboot-src;
-        defconfig = "odroid_m1s_defconfig";
+        defconfig = "odroid-m1s-rk3566_defconfig";
+        # extraMeta.platforms = [ "aarch64-linux" ];
         filesToInstall = [
-          "u-boot.itb"
-          "spl/u-boot-spl.bin"
+          #   "u-boot.itb"
+          #   "spl/u-boot-spl.bin"
         ];
       });
       firmware = pkgs.stdenvNoCC.mkDerivation {
