@@ -5,7 +5,7 @@
     uboot-src = {
       flake = false;
       url = "github:ldicarlo/u-boot-m1s";
-      ref = "refs/tags/v2023-07-02";
+      # url = "github:ldicarlo/u-boot-m1s?rev=83cdab8b2c6ea0fc0860f8444d083353b47f1d5c";
     };
   };
   description = "Build image";
@@ -24,7 +24,8 @@
       uboot = (pkgs.buildUBoot {
         version = uboot-src.shortRev;
         src = uboot-src;
-        defconfig = "odroid-m1s-rk3566_defconfig";
+        # defconfig = "odroid-m1s-rk3566_defconfig";
+        defconfig = "odroid-go2-rk3326_defconfig";
         extraMeta.platforms = [ "aarch64-linux" ];
         filesToInstall = [
           #   "u-boot.itb"
@@ -202,7 +203,7 @@
       packages.x86_64-linux.uboot = x86_64pkgs.pkgsCross.aarch64-multiplatform.buildUBoot {
         version = uboot-src.shortRev;
         src = uboot-src;
-        defconfig = "odroid-m1-rk3568_defconfig";
+        defconfig = "odroid-c4_defconfig";
         #  extraMeta.platforms = [ "aarch64-linux" ];
         filesToInstall = [
           #   "u-boot.itb"
