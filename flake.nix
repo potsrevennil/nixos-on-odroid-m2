@@ -4,19 +4,20 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     uboot-src = {
       flake = false;
-      url = "github:ldicarlo/u-boot-m1s/uboot-m1s";
+      url = "github:ldicarlo/u-boot-m1s";
+      ref = "refs/tags/v2023-07-02";
     };
   };
   description = "Build image";
   outputs = { self, nixpkgs, uboot-src, nixos-hardware, ... }:
     let
       system = "x86_64-linux";
-      x86_64pkgs = import <nixpkgs> {
-        crossSystem = {
-          config = "aarch64-unknown-linux-gnu";
-        };
-      };
-
+      # x86_64pkgs = import <nixpkgs> {
+      #   crossSystem = {
+      #     config = "aarch64-unknown-linux-gnu";
+      #   };
+      # };
+      x86_64pkgs = nixpkgs.legacyPackages.${system};
       aarch64system = "aarch64-linux";
       pkgs = x86_64pkgs;
       # aarch64pkgs = nixpkgs.legacyPackages.${aarch64system};
@@ -198,7 +199,26 @@
               gcc
             ];
         };
+      packages.x86_64-linux.uboot = x86_64pkgs.pkgsCross.aarch64-multiplatform.buildUBoot {
+        version = uboot-src.shortRev;
+        src = uboot-src;
+        defconfig = "odroid-m1-rk3568_defconfig";
+        #  extraMeta.platforms = [ "aarch64-linux" ];
+        filesToInstall = [
+          #   "u-boot.itb"
+          #   "spl/u-boot-spl.bin"
+        ];
+        makeFlags = [
+          # "ARCH=arm64"
+          # "SHELL=${pkgs.bash}/bin/bash"
+          # "DTC=${pkgs.dtc}/bin/dtc"
+          # "CROSS_COMPILE=${pkgs.stdenv.cc.targetPrefix}"
+
+        ];
+        patches = [ ];
+      };
     };
+
 }
 
 
