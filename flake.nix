@@ -4,42 +4,34 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     uboot-src = {
       flake = false;
-      url = "github:ldicarlo/u-boot-m1s";
-      # url = "github:ldicarlo/u-boot-m1s?rev=83cdab8b2c6ea0fc0860f8444d083353b47f1d5c";
+      # url = "github:u-boot/u-boot?rev=83cdab8b2c6ea0fc0860f8444d083353b47f1d5c"; # this is the current nixos version of u-boot
+      url = "github:ldicarlo/u-boot-m1s/uboot-m1s"; # this is the current version in nixos with the patch for the M1S
+      # url = "github:rockchip-linux/u-boot";
     };
   };
   description = "Build image";
   outputs = { self, nixpkgs, uboot-src, nixos-hardware, ... }:
     let
-      system = "x86_64-linux";
-      # x86_64pkgs = import <nixpkgs> {
-      #   crossSystem = {
-      #     config = "aarch64-unknown-linux-gnu";
-      #   };
-      # };
-      x86_64pkgs = nixpkgs.legacyPackages.${system};
       aarch64system = "aarch64-linux";
+      x86_64pkgs = import nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
+      aarch64pkgs = import nixpkgs { system = "aarch64-linux"; config.allowUnfree = true; };
       pkgs = x86_64pkgs;
-      # aarch64pkgs = nixpkgs.legacyPackages.${aarch64system};
-      uboot = (pkgs.buildUBoot {
-        version = uboot-src.shortRev;
+      uboot = x86_64pkgs.pkgsCross.aarch64-multiplatform.buildUBoot rec {
+        extraMakeFlags = [
+          "ROCKCHIP_TPL=${aarch64pkgs.rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.21.bin"
+        ];
+        defconfig = "odroid-m1s-rk3566_defconfig";
+        extraMeta = {
+          platforms = [ "aarch64-linux" ];
+          license = x86_64pkgs.lib.licenses.unfreeRedistributableFirmware;
+        };
         src = uboot-src;
-        # defconfig = "odroid-m1s-rk3566_defconfig";
-        defconfig = "odroid-go2-rk3326_defconfig";
-        extraMeta.platforms = [ "aarch64-linux" ];
-        filesToInstall = [
-          #   "u-boot.itb"
-          #   "spl/u-boot-spl.bin"
-        ];
-        makeFlags = [
-          # "ARCH=arm64"
-          "SHELL=${pkgs.bash}/bin/bash"
-          "DTC=${pkgs.dtc}/bin/dtc"
-          "CROSS_COMPILE=${pkgs.stdenv.cc.targetPrefix}"
-
-        ];
+        version = uboot-src.rev;
+        filesToInstall = [ "u-boot-rockchip.bin" ];
         patches = [ ];
-      });
+        BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
+      };
+
       firmware = pkgs.stdenvNoCC.mkDerivation {
         name = "firmware-odroid-m1s";
         dontUnpack = true;
@@ -60,7 +52,6 @@
       };
     in
     rec {
-
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
         {
           system = "${aarch64system}";
@@ -147,7 +138,7 @@
                   "phy-rockchip-snps-pcie3"
                 ];
                 hardware.deviceTree.enable = true;
-                hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
+                # hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 # hardware.deviceTree.dtbSource = ./dtbs;
                 system.stateVersion = "24.05";
                 sdImage = {
@@ -200,24 +191,6 @@
               gcc
             ];
         };
-      packages.x86_64-linux.uboot = x86_64pkgs.pkgsCross.aarch64-multiplatform.buildUBoot {
-        version = uboot-src.shortRev;
-        src = uboot-src;
-        defconfig = "odroid-c4_defconfig";
-        #  extraMeta.platforms = [ "aarch64-linux" ];
-        filesToInstall = [
-          #   "u-boot.itb"
-          #   "spl/u-boot-spl.bin"
-        ];
-        makeFlags = [
-          # "ARCH=arm64"
-          # "SHELL=${pkgs.bash}/bin/bash"
-          # "DTC=${pkgs.dtc}/bin/dtc"
-          # "CROSS_COMPILE=${pkgs.stdenv.cc.targetPrefix}"
-
-        ];
-        patches = [ ];
-      };
     };
 
 }
