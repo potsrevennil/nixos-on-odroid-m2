@@ -27,10 +27,11 @@
         };
         src = uboot-src;
         version = uboot-src.rev;
-        filesToInstall = [ "u-boot-rockchip.bin" ];
+        filesToInstall = [ "u-boot-rockchip.bin" "spl/u-boot-spl.bin" "u-boot.itb" ];
         patches = [ ];
         BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
       };
+
 
       # firmware = pkgs.stdenvNoCC.mkDerivation {
       #   name = "firmware-odroid-m1s";
@@ -50,13 +51,13 @@
       #     runHook postInstall
       #   '';
       # };
+
     in
     rec {
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
         {
           system = "${aarch64system}";
           modules = [
-            # <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
             ({
               nixpkgs.overlays = [
                 (final: super: {
@@ -69,7 +70,7 @@
                   });
                 })
                 (self: super: {
-                  uboot = super.callPackage uboot { };
+                  uboot = super.uboot;
                 })
 
               ];
@@ -114,7 +115,7 @@
                     nixpkgs.overlays =
                       [
                         (self: super: {
-                          uboot = super.callPackage uboot { };
+                          uboot = super.uboot;
                         })
                       ];
                   })
@@ -143,20 +144,36 @@
                 system.stateVersion = "24.05";
                 sdImage = {
                   compressImage = false;
+                  firmwareSize = 50;
                   populateFirmwareCommands =
                     let
-                      configTxt = pkgs.writeText "README" ''
-                        '';
+                      configTxt = pkgs.writeText "config.txt" ''
+                        [all]
+                        kernel=u-boot-rockchip.bin
+                        arm_64bit=1
+
+                        # U-Boot needs this to work, regardless of whether UART is actually used or not.
+                        # Look in arch/arm/mach-bcm283x/Kconfig in the U-Boot tree to see if this is still
+                        # a requirement in the future.
+                        enable_uart=1
+
+                        # Prevent the firmware from smashing the framebuffer setup done by the mainline kernel
+                        # when attempting to show low-voltage or overtemperature warnings.
+                        avoid_warnings=1
+                      '';
+                      dtb = ./dtbs/rockchip/rk3566-odroid-m1s.dtb;
                     in
                     ''
-                      cp ${configTxt} firmware/README
+                      cp ${configTxt} firmware/config.txt
+                      cp "${uboot}/u-boot-spl.bin" firmware/
+                      cp "${uboot}/u-boot-rockchip.bin" firmware/
+                      cp "${uboot}/u-boot.itb" firmware/
+                      cp "${dtb}" firmware/rk3566-odroid-m1s.dtb
                     '';
-                  # postBuildCommands = ''
-                  #   dd if=${uboot}/u-boot-sunxi-with-spl.bin of=$img bs=1024 seek=8 conv=notrunc
-                  # '';
-                  # populateRootCommands = ''
-                  #   ${config.boot.loader.kboot-conf.populateCmd} -c ${config.system.build.toplevel} -d ./files/kboot.conf
-                  # '';
+                  postBuildCommands = ''
+                  '';
+                  populateRootCommands = ''
+                  '';
                 };
 
                 services.openssh = {
