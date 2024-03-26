@@ -159,11 +159,6 @@
                   # '';
                 };
 
-                environment.systemPackages = [
-                  pkgs.git #gotta have git
-                ];
-
-
                 services.openssh = {
                   enable = true;
                   settings.PermitRootLogin = "yes";
