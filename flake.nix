@@ -27,7 +27,7 @@
         };
         src = uboot-src;
         version = uboot-src.rev;
-        filesToInstall = [ "u-boot-rockchip.bin" "spl/u-boot-spl.bin" "u-boot.itb" ];
+        filesToInstall = [ "u-boot.bin" "u-boot-rockchip.bin" "spl/u-boot-spl.bin" "u-boot.itb" ];
         patches = [ ];
         BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
       };
@@ -147,27 +147,14 @@
                   firmwareSize = 50;
                   populateFirmwareCommands =
                     let
-                      configTxt = pkgs.writeText "config.txt" ''
-                        [all]
-                        kernel=u-boot-rockchip.bin
-                        arm_64bit=1
 
-                        # U-Boot needs this to work, regardless of whether UART is actually used or not.
-                        # Look in arch/arm/mach-bcm283x/Kconfig in the U-Boot tree to see if this is still
-                        # a requirement in the future.
-                        enable_uart=1
-
-                        # Prevent the firmware from smashing the framebuffer setup done by the mainline kernel
-                        # when attempting to show low-voltage or overtemperature warnings.
-                        avoid_warnings=1
-                      '';
                       dtb = ./dtbs/rockchip/rk3566-odroid-m1s.dtb;
                     in
                     ''
-                      cp ${configTxt} firmware/config.txt
                       cp "${uboot}/u-boot-spl.bin" firmware/
                       cp "${uboot}/u-boot-rockchip.bin" firmware/
                       cp "${uboot}/u-boot.itb" firmware/
+                      cp "${uboot}/u-boot.bin" firmware/
                       cp "${dtb}" firmware/rk3566-odroid-m1s.dtb
                     '';
                   postBuildCommands = ''
