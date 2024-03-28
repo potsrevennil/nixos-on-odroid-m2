@@ -5,7 +5,8 @@
     uboot-src = {
       flake = false;
       # url = "github:u-boot/u-boot?rev=83cdab8b2c6ea0fc0860f8444d083353b47f1d5c"; # this is the current nixos version of u-boot
-      url = "github:ldicarlo/u-boot-m1s/uboot-m1s"; # this is the current version in nixos with the patch for the M1S
+      url = "github:u-boot/u-boot?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"; # this is the current nixos version of u-boot
+      # url = "github:ldicarlo/u-boot-m1s/uboot-m1s"; # this is the current version in nixos with the patch for the M1S
       # url = "github:rockchip-linux/u-boot";
     };
   };
@@ -28,10 +29,13 @@
         src = uboot-src;
         version = uboot-src.rev;
         filesToInstall = [ "u-boot.bin" "u-boot-rockchip.bin" "spl/u-boot-spl.bin" "u-boot.itb" ];
-        patches = [ ];
+        patches = [
+          ./uboot/0001-wip.patch
+        ];
         # does not exist for rk3566 I think
         BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
       };
+      dtb = ./dtbs/rockchip/rk3566-odroid-m1s.dtb;
     in
     rec {
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
@@ -125,10 +129,6 @@
                   compressImage = false;
                   firmwareSize = 50;
                   populateFirmwareCommands =
-                    let
-
-                      dtb = ./dtbs/rockchip/rk3566-odroid-m1s.dtb;
-                    in
                     ''
                       cp "${uboot}/u-boot-spl.bin" firmware/
                       cp "${uboot}/u-boot-rockchip.bin" firmware/
