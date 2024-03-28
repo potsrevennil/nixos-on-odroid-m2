@@ -29,29 +29,9 @@
         version = uboot-src.rev;
         filesToInstall = [ "u-boot.bin" "u-boot-rockchip.bin" "spl/u-boot-spl.bin" "u-boot.itb" ];
         patches = [ ];
+        # does not exist for rk3566 I think
         BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
       };
-
-
-      # firmware = pkgs.stdenvNoCC.mkDerivation {
-      #   name = "firmware-odroid-m1s";
-      #   dontUnpack = true;
-      #   nativeBuildInputs = with pkgs; [ dtc ubootTools bison flex ];
-      #   installPhase = ''
-      #     runHook preInstall
-
-      #     mkdir -p "$out/"
-
-      #     cp ${uboot}/u-boot-spl.bin u-boot-spl.bin
-      #     spl_tool -c -f ./u-boot-spl.bin
-
-      #     install -Dm444 ./u-boot-spl.bin.normal.out $out/u-boot-spl.bin.normal.out
-      #     install -Dm444 ${uboot}/u-boot.itb $out/odroid_m1s_payload.img
-
-      #     runHook postInstall
-      #   '';
-      # };
-
     in
     rec {
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
@@ -78,7 +58,6 @@
             })
             (
               { pkgs, config, ... }:
-
               let
                 linux-rockchip = { fetchFromGitHub, buildLinux, config, ... } @ args:
                   buildLinux (args // rec {
@@ -108,8 +87,9 @@
               in
               {
                 imports = [
-                  # ./kboot-conf
+                  ./kboot-conf
                   "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+                  # "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64-new-kernel-installer.nix"
                   ({
                     nixpkgs.overlays =
                       [
@@ -120,7 +100,7 @@
                   })
                 ];
                 boot.loader.grub.enable = false;
-                # boot.loader.kboot-conf.enable = true;
+                boot.loader.kboot-conf.enable = true;
                 nix.package = pkgs.nixFlakes;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
                 nix.extraOptions = ''

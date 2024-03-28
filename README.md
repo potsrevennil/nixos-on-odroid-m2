@@ -19,4 +19,3 @@ see the content of ./screenlog.0 for more info
 
 - U-Boot patch: https://patchwork.ozlabs.org/project/uboot/patch/20240125070252.2057679-1-tobetter@gmail.com/
 - Linux patch: http://lists.infradead.org/pipermail/linux-rockchip/2024-January/044072.html
-
