@@ -84,7 +84,6 @@
                   buildLinux (args // rec {
                     #     version = "6.7.0";
                     #     src = fetchFromGitHub {
-                    #       # Fork of https://github.com/LeeKyuHyuk/linux
                     #       owner = "torvalds";
                     #       repo = "linux";
                     #       rev = "v6.7";
