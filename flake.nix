@@ -4,9 +4,7 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     uboot-src = {
       flake = false;
-      # url = "github:u-boot/u-boot?rev=83cdab8b2c6ea0fc0860f8444d083353b47f1d5c"; # this is the current nixos version of u-boot
       url = "github:u-boot/u-boot?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"; # this is the current nixos version of u-boot
-      # url = "github:ldicarlo/u-boot-m1s/uboot-m1s"; # this is the current version in nixos with the patch for the M1S
       # url = "github:rockchip-linux/u-boot";
     };
   };
@@ -62,33 +60,6 @@
             })
             (
               { pkgs, config, ... }:
-              let
-                linux-rockchip = { fetchFromGitHub, buildLinux, config, ... } @ args:
-                  buildLinux (args // rec {
-                    #     version = "6.7.0";
-                    #     src = fetchFromGitHub {
-                    #       owner = "torvalds";
-                    #       repo = "linux";
-                    #       rev = "v6.7";
-                    #       hash = "sha256-HC/IOgHqZLBYZFiFPSSTFEbRDpCQ2ckTdBkOODAOTMc=";
-                    #     };
-                    version = "6.6.8";
-                    src = fetchFromGitHub {
-                      # Fork of https://github.com/LeeKyuHyuk/linux
-                      owner = "ldicarlo";
-                      repo = "linux";
-                      rev = "v1";
-                      hash = "sha256-d51m5bYES4rkLEXih05XHOSsAEpFPkIp0VVlGrhSrnc=";
-                    };
-                    modDirVersion = version;
-                    kernelPatches = [ ];
-                    extraConfig = ''
-                          '';
-                    extraMeta.platforms = [ "aarch64-linux" ];
-                    extraMeta.branch = "${version}";
-                  } // (args.argsOverride or { }));
-                linux_rchp = pkgs.callPackage linux-rockchip { };
-              in
               {
                 imports = [
                   ./kboot-conf
@@ -115,7 +86,6 @@
                   name = "odroid-m1s-support";
                   patch = kernel/0001-arm64-dts-rockchip-Add-Hardkernel-ODROID-M1S-board.patch;
                 }];
-                # boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_rchp);
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" ];
                 # system.boot.loader.kernelFile = "bzImage";
                 boot.kernelParams = [ "console=ttyS2,1500000" "debug" ];
@@ -127,7 +97,6 @@
                 # ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
-                # hardware.deviceTree.dtbSource = ./dtbs;
                 system.stateVersion = "24.05";
                 sdImage = {
                   compressImage = false;
