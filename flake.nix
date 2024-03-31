@@ -127,6 +127,7 @@
 
         };
       images.odroid-m1s = nixosConfigurations.odroid-m1s.config.system.build.sdImage;
+      packages.x86_64-linux.default = images.odroid-m1s;
       devShells.x86_64-linux.default = x86_64pkgs.mkShell
         {
           buildInputs = with x86_64pkgs;
