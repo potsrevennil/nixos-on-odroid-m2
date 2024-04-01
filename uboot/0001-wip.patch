@@ -736,7 +736,7 @@ index baa51349f4..2f03b983ee 100644
 @@ -22,6 +22,11 @@ config TARGET_ODROID_M1_RK3568
  	help
  	  Hardkernel ODROID-M1 single board computer with a RK3568B2 SoC.
- 
+
 +config TARGET_ODROID_M1S_RK3566
 +	bool "ODROID-M1S"
 +	help
@@ -751,7 +751,7 @@ index baa51349f4..2f03b983ee 100644
  source "board/hardkernel/odroid_m1/Kconfig"
 +source "board/hardkernel/odroid_m1s/Kconfig"
  source "board/pine64/quartz64_rk3566/Kconfig"
- 
+
  endif
 diff --git a/board/hardkernel/odroid_m1s/Kconfig b/board/hardkernel/odroid_m1s/Kconfig
 new file mode 100644
@@ -1008,7 +1008,7 @@ index 18d0b6f089..3ce9966fc1 100644
 --- a/doc/board/rockchip/rockchip.rst
 +++ b/doc/board/rockchip/rockchip.rst
 @@ -93,6 +93,7 @@ List of mainline supported Rockchip boards:
- 
+
  * rk3566
       - Anbernic RGxx3 (anbernic-rgxx3-rk3566)
 +     - Hardkernel ODROID-M1S (odroid-m1s-rk3566)
@@ -1033,6 +1033,6 @@ index 0000000000..b271861388
 +		"stderr=serial\0"
 +
 +#endif
--- 
+--
 2.44.0
 

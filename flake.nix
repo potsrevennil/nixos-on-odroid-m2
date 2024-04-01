@@ -96,7 +96,7 @@
                 #   "phy-rockchip-snps-pcie3"
                 # ];
                 hardware.deviceTree.enable = true;
-                hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
+                # hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 system.stateVersion = "24.05";
                 sdImage = {
                   compressImage = false;
@@ -107,8 +107,8 @@
                       cp "${uboot}/u-boot-rockchip.bin" firmware/
                       cp "${uboot}/u-boot.itb" firmware/
                       cp "${uboot}/u-boot.bin" firmware/
-                      cp "${dtb}" firmware/rk3566-odroid-m1s.dtb
                     '';
+                  #   cp "${dtb}" firmware/rockchip/rk3566-odroid-m1s.dtb
                   # postBuildCommands = ''
                   # '';
                   # populateRootCommands = ''
