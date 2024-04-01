@@ -29,7 +29,8 @@
         filesToInstall = [
           "u-boot.bin"
           "u-boot-rockchip.bin"
-          "uboot-rockchip-spi.bin"
+          "u-boot-rockchip-spi.bin"
+          "idbloader.img"
           "spl/u-boot-spl.bin"
           "u-boot.itb"
 
@@ -103,7 +104,7 @@
                 #   "phy-rockchip-snps-pcie3"
                 # ];
                 hardware.deviceTree.enable = true;
-                # hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
+                hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 system.stateVersion = "24.05";
                 sdImage = {
                   compressImage = false;
@@ -134,8 +135,16 @@
 
         };
       images.odroid-m1s = nixosConfigurations.odroid-m1s.config.system.build.sdImage;
-      packages.x86_64-linux.default = images.odroid-m1s;
-      packages.x86_64-linux.uboot = uboot;
+
+      packages = rec {
+        x86_64-linux.default = packages.all;
+
+        all = pkgs.symlinkJoin {
+          name = "all";
+          paths = [ images.odroid-m1s uboot ];
+        };
+      };
+
       devShells.x86_64-linux.default = x86_64pkgs.mkShell
         {
           buildInputs = with x86_64pkgs;
