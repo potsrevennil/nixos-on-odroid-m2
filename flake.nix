@@ -26,7 +26,13 @@
         };
         src = uboot-src;
         version = uboot-src.rev;
-        filesToInstall = [ "u-boot.bin" "u-boot-rockchip.bin" "spl/u-boot-spl.bin" "u-boot.itb" ];
+        filesToInstall = [
+          "u-boot.bin"
+          "u-boot-rockchip.bin"
+          "spl/u-boot-spl.bin"
+          "u-boot.itb"
+
+        ];
         patches = [
           ./uboot/0001-wip.patch
         ];
@@ -128,6 +134,7 @@
         };
       images.odroid-m1s = nixosConfigurations.odroid-m1s.config.system.build.sdImage;
       packages.x86_64-linux.default = images.odroid-m1s;
+      packages.x86_64-linux.uboot = uboot;
       devShells.x86_64-linux.default = x86_64pkgs.mkShell
         {
           buildInputs = with x86_64pkgs;
