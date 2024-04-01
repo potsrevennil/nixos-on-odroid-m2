@@ -29,6 +29,7 @@
         filesToInstall = [
           "u-boot.bin"
           "u-boot-rockchip.bin"
+          "uboot-rockchip-spi.bin"
           "spl/u-boot-spl.bin"
           "u-boot.itb"
 
