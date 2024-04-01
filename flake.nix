@@ -8,7 +8,7 @@
       # url = "github:rockchip-linux/u-boot";
     };
   };
-  description = "Build image";
+  description = "Build NixOS M1S image";
   outputs = { self, nixpkgs, uboot-src, nixos-hardware, ... }:
     let
       aarch64system = "aarch64-linux";
@@ -62,7 +62,7 @@
               { pkgs, config, ... }:
               {
                 imports = [
-                  ./kboot-conf
+                  # ./kboot-conf
                   "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
                   # "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64-new-kernel-installer.nix"
                   ({
@@ -74,8 +74,8 @@
                       ];
                   })
                 ];
-                boot.loader.grub.enable = false;
-                boot.loader.kboot-conf.enable = true;
+                # boot.loader.grub.enable = false;
+                # boot.loader.kboot-conf.enable = true;
                 nix.package = pkgs.nixFlakes;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
                 nix.extraOptions = ''
@@ -86,9 +86,9 @@
                   name = "odroid-m1s-support";
                   patch = kernel/0001-arm64-dts-rockchip-Add-Hardkernel-ODROID-M1S-board.patch;
                 }];
-                boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" ];
+                # boot.supportedFilesystems = pkgs.lib.mkForce [                   "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" ];
                 # system.boot.loader.kernelFile = "bzImage";
-                boot.kernelParams = [ "console=ttyS2,1500000" "debug" ];
+                # boot.kernelParams = [ "console=ttyS2,1500000" "debug" ];
                 # boot.initrd.availableKernelModules = [
                 #   "nvme"
                 #   "nvme-core"
@@ -109,17 +109,17 @@
                       cp "${uboot}/u-boot.bin" firmware/
                       cp "${dtb}" firmware/rk3566-odroid-m1s.dtb
                     '';
-                  postBuildCommands = ''
-                  '';
-                  populateRootCommands = ''
-                  '';
+                  # postBuildCommands = ''
+                  # '';
+                  # populateRootCommands = ''
+                  # '';
                 };
 
-                services.openssh = {
-                  enable = true;
-                  settings.PermitRootLogin = "yes";
-                };
-                users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
+                # services.openssh = {
+                #   enable = true;
+                #   settings.PermitRootLogin = "yes";
+                # };
+                # users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
               }
             )
 
