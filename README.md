@@ -19,3 +19,13 @@ see the content of ./screenlog.0 for more info
 
 - U-Boot patch: https://patchwork.ozlabs.org/project/uboot/patch/20240125070252.2057679-1-tobetter@gmail.com/
 - Linux patch: http://lists.infradead.org/pipermail/linux-rockchip/2024-January/044072.html
+- RockChip instructions (maybe): https://opensource.rock-chips.com/wiki_Boot_option#U-Boot
+
+
+
+# Maybe steps
+
+dd if=idbloader.img of=sdb seek=64
+dd if=u-boot.itb of=sdb seek=16384
+dd if=boot.img of=sdb seek=32768
+dd if=rootfs.img of=sdb seek=262144

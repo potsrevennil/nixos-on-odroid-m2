@@ -8,7 +8,7 @@
       # url = "github:rockchip-linux/u-boot";
     };
   };
-  description = "Build NixOS M1S image";
+  description = "NixOS HardKernel Odroid M1S image";
   outputs = { self, nixpkgs, uboot-src, ... }:
     let
       aarch64system = "aarch64-linux";
@@ -27,13 +27,9 @@
         src = uboot-src;
         version = uboot-src.rev;
         filesToInstall = [
-          "u-boot.bin"
-          "u-boot-rockchip.bin"
-          "u-boot-rockchip-spi.bin"
-          "idbloader.img"
-          "spl/u-boot-spl.bin"
           "u-boot.itb"
-
+          "idbloader.img"
+          "u-boot-rockchip.bin"
         ];
         patches = [
           ./uboot/0001-wip.patch
@@ -111,11 +107,11 @@
                   firmwareSize = 50;
                   populateFirmwareCommands =
                     ''
-                      cp "${uboot}/u-boot-spl.bin" firmware/
                       cp "${uboot}/u-boot-rockchip.bin" firmware/
                       cp "${uboot}/u-boot.itb" firmware/
-                      cp "${uboot}/u-boot.bin" firmware/
+                      cp "${uboot}/idbloader.img" firmware/
                     '';
+                  #   cp "${uboot}/u-boot-spl.bin" firmware/
                   #   cp "${dtb}" firmware/rockchip/rk3566-odroid-m1s.dtb
                   # postBuildCommands = ''
                   # '';
