@@ -1,15 +1,15 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixos-hardware.url = "github:NixOS/nixos-hardware";
     uboot-src = {
       flake = false;
       url = "github:u-boot/u-boot?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"; # this is the current nixos version of u-boot
+      # url = "github:u-boot/u-boot";
       # url = "github:rockchip-linux/u-boot";
     };
   };
   description = "Build NixOS M1S image";
-  outputs = { self, nixpkgs, uboot-src, nixos-hardware, ... }:
+  outputs = { self, nixpkgs, uboot-src, ... }:
     let
       aarch64system = "aarch64-linux";
       x86_64pkgs = import nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
