@@ -19,7 +19,7 @@
         extraMakeFlags = [
           "ROCKCHIP_TPL=${aarch64pkgs.rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.21.bin"
         ];
-        defconfig = "odroid-m1s-rk3566_defconfig";
+        defconfig = "generic-rk3568_defconfig";
         extraMeta = {
           platforms = [ "aarch64-linux" ];
           license = x86_64pkgs.lib.licenses.unfreeRedistributableFirmware;
@@ -106,7 +106,6 @@
                 sdImage = {
                   compressImage = false;
                   firmwareSize = 50;
-                  firmwarePartitionOffset = 262144;
                   populateFirmwareCommands =
                     ''
                       cp "${uboot}/u-boot-rockchip.bin" firmware/
@@ -114,7 +113,6 @@
                       cp "${uboot}/idbloader.img" firmware/
                       cp "${uboot}/u-boot-spl.bin" firmware/
                     '';
-                  rootPartitionOffset = 10;
                   #   cp "${dtb}" firmware/rockchip/rk3566-odroid-m1s.dtb
                   # postBuildCommands = ''
                   # '';
