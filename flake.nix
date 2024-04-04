@@ -30,6 +30,7 @@
           "u-boot.itb"
           "idbloader.img"
           "u-boot-rockchip.bin"
+          "spl/u-boot-spl.bin"
         ];
         patches = [
           ./uboot/0001-wip.patch
@@ -110,8 +111,8 @@
                       cp "${uboot}/u-boot-rockchip.bin" firmware/
                       cp "${uboot}/u-boot.itb" firmware/
                       cp "${uboot}/idbloader.img" firmware/
+                      cp "${uboot}/u-boot-spl.bin" firmware/
                     '';
-                  #   cp "${uboot}/u-boot-spl.bin" firmware/
                   #   cp "${dtb}" firmware/rockchip/rk3566-odroid-m1s.dtb
                   # postBuildCommands = ''
                   # '';
