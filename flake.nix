@@ -106,6 +106,7 @@
                 sdImage = {
                   compressImage = false;
                   firmwareSize = 50;
+                  firmwarePartitionOffset = 262144;
                   populateFirmwareCommands =
                     ''
                       cp "${uboot}/u-boot-rockchip.bin" firmware/
@@ -113,6 +114,7 @@
                       cp "${uboot}/idbloader.img" firmware/
                       cp "${uboot}/u-boot-spl.bin" firmware/
                     '';
+                  rootPartitionOffset = 10;
                   #   cp "${dtb}" firmware/rockchip/rk3566-odroid-m1s.dtb
                   # postBuildCommands = ''
                   # '';
