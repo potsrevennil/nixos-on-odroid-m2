@@ -3,9 +3,10 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     uboot-src = {
       flake = false;
-      url = "github:u-boot/u-boot?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"; # this is the current nixos version of u-boot
+      # url = "github:u-boot/u-boot?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"; # this is the current nixos version of u-boot
       # url = "github:u-boot/u-boot";
       # url = "github:rockchip-linux/u-boot";
+      url = "github:Kwiboo/u-boot-rockchip";
     };
   };
   description = "NixOS HardKernel Odroid M1S image";
@@ -19,7 +20,7 @@
         extraMakeFlags = [
           "ROCKCHIP_TPL=${aarch64pkgs.rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.21.bin"
         ];
-        defconfig = "generic-rk3568_defconfig";
+        defconfig = "odroid-m1s-rk3566_defconfig";
         extraMeta = {
           platforms = [ "aarch64-linux" ];
           license = x86_64pkgs.lib.licenses.unfreeRedistributableFirmware;
@@ -33,7 +34,7 @@
           "spl/u-boot-spl.bin"
         ];
         patches = [
-          ./uboot/0001-wip.patch
+          #   ./uboot/0001-wip.patch
         ];
         # does not exist for rk3566 I think
         BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
@@ -87,13 +88,22 @@
                   experimental-features = nix-command flakes
                 '';
                 boot.kernelPackages = pkgs.linuxPackages_latest;
-                boot.kernelPatches = [{
-                  name = "odroid-m1s-support";
-                  patch = kernel/0001-arm64-dts-rockchip-Add-Hardkernel-ODROID-M1S-board.patch;
-                }];
+                boot.kernelPatches = [
+                  {
+                    name = "odroid-m1s-support";
+                    patch = kernel/0001-arm64-dts-rockchip-Add-Hardkernel-ODROID-M1S-board.patch;
+                  }
+                  {
+                    name = "enable-earlyprintk";
+                    patch = null;
+                    extraConfig = ''
+                      CONFIG_EARLY_PRINTK_DBGP y
+                    '';
+                  }
+                ];
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
                 # system.boot.loader.kernelFile = "bzImage";
-                boot.kernelParams = [ "console=ttyS2,115200n8" "debug" ];
+                boot.kernelParams = [ "console=ttyS2,1500000" "debug" "earlyprintk=ttyS2,1500000" ];
                 # boot.initrd.availableKernelModules = [
                 #   "nvme"
                 #   "nvme-core"

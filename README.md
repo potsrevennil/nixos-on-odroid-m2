@@ -20,7 +20,9 @@ see the content of ./screenlog.0 for more info
 - U-Boot patch: https://patchwork.ozlabs.org/project/uboot/patch/20240125070252.2057679-1-tobetter@gmail.com/
 - Linux patch: http://lists.infradead.org/pipermail/linux-rockchip/2024-January/044072.html
 - RockChip instructions (maybe): https://opensource.rock-chips.com/wiki_Boot_option#U-Boot
-
+- earlyprintk instructions:
+  - https://wiki.st.com/stm32mpu/wiki/Dmesg_and_Linux_kernel_log#earlyprintk
+  - https://docs.kernel.org/arch/x86/earlyprintk.html
 
 
 # Maybe steps from https://opensource.rock-chips.com/wiki_Boot_option#U-Boot
