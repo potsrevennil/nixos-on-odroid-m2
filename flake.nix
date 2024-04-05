@@ -120,11 +120,11 @@
                   # '';
                 };
 
-                # services.openssh = {
-                #   enable = true;
-                #   settings.PermitRootLogin = "yes";
-                # };
-                # users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
+                services.openssh = {
+                  enable = true;
+                  settings.PermitRootLogin = "yes";
+                };
+                users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
               }
             )
 

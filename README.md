@@ -29,3 +29,17 @@ dd if=idbloader.img of=sdb seek=64
 dd if=u-boot.itb of=sdb seek=16384
 dd if=boot.img of=sdb seek=32768
 dd if=rootfs.img of=sdb seek=262144
+
+# Other maybe steps
+
+cp result/sdimage tmp/sdimage
+dd if=result/u-boot-rockchip.bin of=./tmp/nixos.img oflag=seek_bytes seek="$((0x8000))" conv=notrunc
+
+as mass storage
+dd if=/dev/zero of=/dev/sda bs=8M count=1
+dd tmp/nixos.img
+
+## To reset
+boot using uart then block boot
+mmc erase 0 0x4000
+then mass storage with sd is ok
