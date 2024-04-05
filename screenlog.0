@@ -1,0 +1,12 @@
+ 1  0 
+** Booting bootflow 'mmc@fe310000.bootdev.part_2' with extlinux
+------------------------------------------------------------
+1:	NixOS - Default
+Enter choice: <INTERRUPT>
+Boot failed (err=-14)
+No ethernet found.
+No ethernet found.
+=> mmc erase 0 0x4000
+
+MMC erase: dev # 0, block # 0, count 16384 ... 16384 blocks erased: OK
+=> 
