@@ -93,7 +93,7 @@
                 }];
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
                 # system.boot.loader.kernelFile = "bzImage";
-                # boot.kernelParams = [ "console=ttyS2,1500000" "debug" ];
+                boot.kernelParams = [ "console=ttyS2,115200n8" "debug" ];
                 # boot.initrd.availableKernelModules = [
                 #   "nvme"
                 #   "nvme-core"
