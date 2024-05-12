@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1711163522,
-        "narHash": "sha256-YN/Ciidm+A0fmJPWlHBGvVkcarYWSC+s3NTPk/P+q3c=",
+        "lastModified": 1715447595,
+        "narHash": "sha256-VsVAUQOj/cS1LCOmMjAGeRksXIAdPnFIjCQ0XLkCsT0=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "44d0940ea560dee511026a53f0e2e2cde489b4d4",
+        "rev": "062ca2a9370a27a35c524dc82d540e6e9824b652",
         "type": "github"
       },
       "original": {
@@ -25,11 +25,11 @@
     "uboot-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1712090756,
-        "narHash": "sha256-daaWVIhkWkX64rMsE/uf19T13mZpmpSA8Vkehplc9Ig=",
+        "lastModified": 1715529877,
+        "narHash": "sha256-9CtgEvRwpLHn6N9t3gWqkWqstrt3aV/fngx9tg4Cl08=",
         "owner": "Kwiboo",
         "repo": "u-boot-rockchip",
-        "rev": "e353ac61883647dc4c61b0135ce8e27e74104e7e",
+        "rev": "f45ea62bdf29961421ab4803361b9107d04ce984",
         "type": "github"
       },
       "original": {
