@@ -88,19 +88,6 @@
                   experimental-features = nix-command flakes
                 '';
                 boot.kernelPackages = pkgs.linuxPackages_latest;
-                boot.kernelPatches = [
-                  {
-                    name = "odroid-m1s-support";
-                    patch = kernel/0001-arm64-dts-rockchip-Add-Hardkernel-ODROID-M1S-board.patch;
-                  }
-                  {
-                    name = "enable-earlyprintk";
-                    patch = null;
-                    extraConfig = ''
-                      CONFIG_EARLY_PRINTK_DBGP y
-                    '';
-                  }
-                ];
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
                 # system.boot.loader.kernelFile = "bzImage";
                 boot.kernelParams = [ "console=ttyS2,1500000" "debug" "earlyprintk=ttyS2,1500000" ];
