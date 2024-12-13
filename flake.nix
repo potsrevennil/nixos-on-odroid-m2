@@ -3,7 +3,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     uboot-src = {
       flake = false;
-      url = "github:u-boot/u-boot?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"; # this is the current nixos version of u-boot
+      url = "github:u-boot/u-boot"; # ?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"; # this is the current nixos version of u-boot
       # url = "github:u-boot/u-boot";
       # url = "github:rockchip-linux/u-boot";
     };
@@ -32,13 +32,13 @@
           "u-boot-rockchip.bin"
           "spl/u-boot-spl.bin"
         ];
-        patches = [
-          ./uboot/0001-wip.patch
-        ];
+        # patches = [
+        #   ./uboot/0001-wip.patch
+        # ];
         # does not exist for rk3566 I think
         BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
       };
-      dtb = ./dtbs/rockchip/rk3566-odroid-m1s.dtb;
+
     in
     rec {
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
@@ -56,9 +56,9 @@
                     meta.platforms = [ ];
                   });
                 })
-                (self: super: {
-                  uboot = super.uboot;
-                })
+                # (self: super: {
+                #   uboot = super.uboot;
+                # })
 
               ];
               nixpkgs.hostPlatform.system = aarch64system;
@@ -73,15 +73,15 @@
                   ({
                     nixpkgs.overlays =
                       [
-                        (self: super: {
-                          uboot = super.uboot;
-                        })
+                        # (self: super: {
+                        #   uboot = super.uboot;
+                        # })
                       ];
                   })
                 ];
                 # boot.loader.grub.enable = false;
                 # boot.loader.kboot-conf.enable = true;
-                nix.package = pkgs.nixFlakes;
+                nix.package = pkgs.nixVersions.stable;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
                 nix.extraOptions = ''
                   experimental-features = nix-command flakes
@@ -98,17 +98,17 @@
                 # ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
-                system.stateVersion = "24.05";
+                system.stateVersion = "25.05";
                 sdImage = {
                   compressImage = false;
                   firmwareSize = 50;
-                  populateFirmwareCommands =
-                    ''
-                      cp "${uboot}/u-boot-rockchip.bin" firmware/
-                      cp "${uboot}/u-boot.itb" firmware/
-                      cp "${uboot}/idbloader.img" firmware/
-                      cp "${uboot}/u-boot-spl.bin" firmware/
-                    '';
+                  # populateFirmwareCommands =
+                  #   ''
+                  #     cp "${uboot}/u-boot-rockchip.bin" firmware/
+                  #     cp "${uboot}/u-boot.itb" firmware/
+                  #     cp "${uboot}/idbloader.img" firmware/
+                  #     cp "${uboot}/u-boot-spl.bin" firmware/
+                  #   '';
                   #   cp "${dtb}" firmware/rockchip/rk3566-odroid-m1s.dtb
                   # postBuildCommands = ''
                   # '';

@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1711163522,
-        "narHash": "sha256-YN/Ciidm+A0fmJPWlHBGvVkcarYWSC+s3NTPk/P+q3c=",
+        "lastModified": 1733940404,
+        "narHash": "sha256-Pj39hSoUA86ZePPF/UXiYHHM7hMIkios8TYG29kQT4g=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "44d0940ea560dee511026a53f0e2e2cde489b4d4",
+        "rev": "5d67ea6b4b63378b9c13be21e2ec9d1afc921713",
         "type": "github"
       },
       "original": {
@@ -25,17 +25,16 @@
     "uboot-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1704728268,
-        "narHash": "sha256-0Da7Czy9cpQ+D5EICc3/QSZhAdCBsmeMvBgykYhAQFw=",
+        "lastModified": 1734018625,
+        "narHash": "sha256-bWXHXC66U7ntXs+w9EjUErVma3b5RLYqnjR9E9JIkQE=",
         "owner": "u-boot",
         "repo": "u-boot",
-        "rev": "866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e",
+        "rev": "88bd5701efdc48048e030d91c2633048f0f753a0",
         "type": "github"
       },
       "original": {
         "owner": "u-boot",
         "repo": "u-boot",
-        "rev": "866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e",
         "type": "github"
       }
     }
