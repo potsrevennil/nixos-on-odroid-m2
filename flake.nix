@@ -100,7 +100,7 @@
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 system.stateVersion = "25.05";
                 sdImage = {
-                  compressImage = false;
+                  # compressImage = false;
                   firmwareSize = 50;
                   # populateFirmwareCommands =
                   #   ''
