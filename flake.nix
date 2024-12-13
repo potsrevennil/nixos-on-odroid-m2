@@ -87,10 +87,6 @@
                   experimental-features = nix-command flakes
                 '';
                 boot.kernelPackages = pkgs.linuxPackages_latest;
-                boot.kernelPatches = [{
-                  name = "odroid-m1s-support";
-                  patch = kernel/0001-arm64-dts-rockchip-Add-Hardkernel-ODROID-M1S-board.patch;
-                }];
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
                 # system.boot.loader.kernelFile = "bzImage";
                 # boot.kernelParams = [ "console=ttyS2,1500000" "debug" ];
