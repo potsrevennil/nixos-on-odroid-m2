@@ -89,7 +89,7 @@
                 boot.kernelPackages = pkgs.linuxPackages_latest;
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
                 # system.boot.loader.kernelFile = "bzImage";
-                boot.kernelParams = [ "console=ttyS2,1500000" "debug" "earlyprintk=ttyS2,1500000" ];
+                boot.kernelParams = [ "debug" "console=ttyS2,1500000" "earlyprintk=ttyS2,1500000,keep" ];
                 # boot.initrd.availableKernelModules = [
                 #   "nvme"
                 #   "nvme-core"
@@ -100,7 +100,7 @@
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 system.stateVersion = "25.05";
                 sdImage = {
-                  # compressImage = false;
+                  compressImage = false;
                   firmwareSize = 50;
                   # populateFirmwareCommands =
                   #   ''
@@ -116,11 +116,11 @@
                   # '';
                 };
 
-                # services.openssh = {
-                #   enable = true;
-                #   settings.PermitRootLogin = "yes";
-                # };
-                # users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
+                services.openssh = {
+                  enable = true;
+                  settings.PermitRootLogin = "yes";
+                };
+                users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
               }
             )
 
