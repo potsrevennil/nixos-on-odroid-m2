@@ -86,7 +86,7 @@
                 nix.extraOptions = ''
                   experimental-features = nix-command flakes
                 '';
-                boot.kernelPackages = pkgs.linuxPackages_latest;
+                # boot.kernelPackages = pkgs.linuxPackages_latest;
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
                 # system.boot.loader.kernelFile = "bzImage";
                 boot.kernelParams = [ "debug" "console=ttyS2,1500000" "earlyprintk=ttyS2,1500000,keep" ];
@@ -121,10 +121,10 @@
                   settings.PermitRootLogin = "yes";
                 };
                 users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
-                networking.networkmanager.enable = false;
-                networking.useDHCP = false;
-                networking.useNetworkd = false;
-                systemd.network.enable = true;
+                networking.networkmanager.enable = true;
+                # networking.useDHCP = false;
+                # networking.useNetworkd = false;
+                # systemd.network.enable = true;
               }
             )
 
