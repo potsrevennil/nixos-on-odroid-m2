@@ -89,13 +89,13 @@
                 # boot.kernelPackages = pkgs.linuxPackages_latest;
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
                 # system.boot.loader.kernelFile = "bzImage";
-                boot.kernelParams = [ "debug" "console=ttyS2,1500000" "earlyprintk=ttyS2,1500000,keep" ];
-                # boot.initrd.availableKernelModules = [
-                #   "nvme"
-                #   "nvme-core"
-                #   "phy-rockchip-naneng-combphy"
-                #   "phy-rockchip-snps-pcie3"
-                # ];
+                boot.kernelParams = [ "debug" "console=ttyS2,1500000" ];
+                boot.initrd.availableKernelModules = [
+                  "nvme"
+                  "nvme-core"
+                  "phy-rockchip-naneng-combphy"
+                  "phy-rockchip-snps-pcie3"
+                ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 system.stateVersion = "25.05";
