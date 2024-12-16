@@ -121,7 +121,7 @@
                   settings.PermitRootLogin = "yes";
                 };
                 users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
-                networking.networkmanager.enable = true;
+                # networking.networkmanager.enable = true;
                 # networking.useDHCP = false;
                 # networking.useNetworkd = false;
                 # systemd.network.enable = true;
