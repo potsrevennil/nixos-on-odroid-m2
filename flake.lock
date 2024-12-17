@@ -25,16 +25,16 @@
     "uboot-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1734018625,
-        "narHash": "sha256-bWXHXC66U7ntXs+w9EjUErVma3b5RLYqnjR9E9JIkQE=",
-        "owner": "u-boot",
-        "repo": "u-boot",
-        "rev": "88bd5701efdc48048e030d91c2633048f0f753a0",
+        "lastModified": 1732226113,
+        "narHash": "sha256-GKJbwFdKYw2bJtY3kiIXJ0j6PFtxWhyytxJ0vurx6ZE=",
+        "owner": "Kwiboo",
+        "repo": "u-boot-rockchip",
+        "rev": "2c25ffce35e406f21e4250e89249830c0e7bca9d",
         "type": "github"
       },
       "original": {
-        "owner": "u-boot",
-        "repo": "u-boot",
+        "owner": "Kwiboo",
+        "repo": "u-boot-rockchip",
         "type": "github"
       }
     }
