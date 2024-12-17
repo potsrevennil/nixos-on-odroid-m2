@@ -15,29 +15,29 @@
       x86_64pkgs = import nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
       aarch64pkgs = import nixpkgs { system = "aarch64-linux"; config.allowUnfree = true; };
       pkgs = x86_64pkgs;
-      uboot = x86_64pkgs.pkgsCross.aarch64-multiplatform.buildUBoot rec {
-        extraMakeFlags = [
-          "ROCKCHIP_TPL=${aarch64pkgs.rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.21.bin"
-        ];
-        defconfig = "generic-rk3568_defconfig";
-        extraMeta = {
-          platforms = [ "aarch64-linux" ];
-          license = x86_64pkgs.lib.licenses.unfreeRedistributableFirmware;
-        };
-        src = uboot-src;
-        version = uboot-src.rev;
-        filesToInstall = [
-          "u-boot.itb"
-          "idbloader.img"
-          "u-boot-rockchip.bin"
-          "spl/u-boot-spl.bin"
-        ];
-        # patches = [
-        #   ./uboot/0001-wip.patch
-        # ];
-        # does not exist for rk3566 I think
-        BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
-      };
+      # uboot = x86_64pkgs.pkgsCross.aarch64-multiplatform.buildUBoot rec {
+      #   extraMakeFlags = [
+      #     "ROCKCHIP_TPL=${aarch64pkgs.rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.21.bin"
+      #   ];
+      #   defconfig = "generic-rk3568_defconfig";
+      #   extraMeta = {
+      #     platforms = [ "aarch64-linux" ];
+      #     license = x86_64pkgs.lib.licenses.unfreeRedistributableFirmware;
+      #   };
+      #   src = uboot-src;
+      #   version = uboot-src.rev;
+      #   filesToInstall = [
+      #     "u-boot.itb"
+      #     "idbloader.img"
+      #     "u-boot-rockchip.bin"
+      #     "spl/u-boot-spl.bin"
+      #   ];
+      #   # patches = [
+      #   #   ./uboot/0001-wip.patch
+      #   # ];
+      #   # does not exist for rk3566 I think
+      #   BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
+      # };
 
     in
     rec {
@@ -56,9 +56,9 @@
                     meta.platforms = [ ];
                   });
                 })
-                # (self: super: {
-                #   uboot = super.uboot;
-                # })
+                (self: super: {
+                  uboot = super.uboot-src;
+                })
 
               ];
               nixpkgs.hostPlatform.system = aarch64system;
@@ -73,9 +73,9 @@
                   ({
                     nixpkgs.overlays =
                       [
-                        # (self: super: {
-                        #   uboot = super.uboot;
-                        # })
+                        (self: super: {
+                          uboot = super.uboot-src;
+                        })
                       ];
                   })
                 ];
@@ -90,12 +90,12 @@
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
                 # system.boot.loader.kernelFile = "bzImage";
                 boot.kernelParams = [ "debug" "console=ttyS2,1500000" "earlyprintk=ttyS2,1500000,keep" ];
-                # boot.initrd.availableKernelModules = [
-                #   "nvme"
-                #   "nvme-core"
-                #   "phy-rockchip-naneng-combphy"
-                #   "phy-rockchip-snps-pcie3"
-                # ];
+                boot.initrd.availableKernelModules = [
+                  #   "nvme"
+                  #   "nvme-core"
+                  #   "phy-rockchip-naneng-combphy"
+                  #   "phy-rockchip-snps-pcie3"
+                ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
                 system.stateVersion = "25.05";
@@ -134,7 +134,7 @@
 
         all = pkgs.symlinkJoin {
           name = "all";
-          paths = [ images.odroid-m1s uboot ];
+          paths = [ images.odroid-m1s ];
         };
       };
 
