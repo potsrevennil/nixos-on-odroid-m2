@@ -29,7 +29,9 @@
         defconfig = "odroid-m1s-rk3566_defconfig";
         filesToInstall = [
           "u-boot.bin"
-          # "u-boot-rockchip.bin"
+          "u-boot-rockchip.bin"
+          "idbloader.img"
+          "u-boot.itb"
         ];
         BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
 
@@ -76,10 +78,6 @@
                     meta.platforms = [ ];
                   });
                 })
-                (self: super: {
-
-                  uboot = super.uboot;
-                })
 
               ];
               nixpkgs.hostPlatform.system = aarch64system;
@@ -88,19 +86,7 @@
               { lib, pkgs, config, ... }:
               {
                 imports = [
-                  (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-                    {
-                      inherit config lib;
-                      pkgs = import nixpkgs {
-                        system = "${aarch64system}";
-                        overlays = [
-                          (self: super: {
-                            uboot = super.uboot;
-                          })
-                        ];
-                      };
-
-                    })
+                  (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
                 ];
 
                 nix.package = pkgs.nixVersions.stable;
@@ -144,7 +130,7 @@
 
         all = pkgs.symlinkJoin {
           name = "all";
-          paths = [ images.odroid-m1s ];
+          paths = [ images.odroid-m1s uboot ];
         };
       };
 

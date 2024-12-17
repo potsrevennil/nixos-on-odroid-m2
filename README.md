@@ -8,12 +8,23 @@ Link in nixos'discourse: https://discourse.nixos.org/t/nixos-on-odroid-m1s
 
 `nix build ./\#images.odroid-m1s`
 
-
 # Current status
 
-Does not work:
+It works!
 
-see the content of ./screenlog.0 for more info
+# How-to
+
+- Download `ODROID-M1S_EMMC2UMS.img` and `dd` it to a SD card
+- `nix build ./`
+- connect the micro usb cable to your computer and insert SD card with the mass storage mode in it
+- `dd if=./result/sd-image/nixos-sd-image-[...] of=/dev/sdX status=progress`
+- `dd if=./result/u-boot-rockchip.bin of=/dev/sdX bs=32k seek=1 conv=fsync`
+- shutdown, remove the SD card, restart
+
+## To reset when bricked
+boot using uart then block boot
+`mmc erase 0 0x4000`
+then mass storage with sd is ok
 
 # Links
 
@@ -23,28 +34,5 @@ see the content of ./screenlog.0 for more info
 - earlyprintk instructions:
   - https://wiki.st.com/stm32mpu/wiki/Dmesg_and_Linux_kernel_log#earlyprintk
   - https://docs.kernel.org/arch/x86/earlyprintk.html
-
-
-# Maybe steps from https://opensource.rock-chips.com/wiki_Boot_option#U-Boot
-
-`dd if=idbloader.img of=sdb seek=64`
-`dd if=u-boot.itb of=sdb seek=16384`
-`dd if=boot.img of=sdb seek=32768`
-`dd if=rootfs.img of=sdb seek=262144`
-
-# Other maybe steps
-
-first as mass storage zero the beginning of the eMMC
-`dd if=/dev/zero of=/dev/sda bs=8M count=1`
-
-`cp result/sdimage tmp/sdimage`
-`dd if=result/u-boot-rockchip.bin of=./tmp/nixos.img oflag=seek_bytes seek="$((0x8000))" conv=notrunc`
-
-as mass storage
-`dd if=/dev/zero of=/dev/sda bs=8M count=1`
-`dd tmp/nixos.img`
-
-## To reset
-boot using uart then block boot
-`mmc erase 0 0x4000`
-then mass storage with sd is ok
+- U-boot working version https://github.com/Kwiboo/u-boot-rockchip/tree/rk3xxx-2025.01
+- instructions for u-boot https://github.com/jonesthefox/odroid-m1s-arch
