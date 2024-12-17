@@ -34,6 +34,7 @@
       },
       "original": {
         "owner": "Kwiboo",
+        "ref": "rk3xxx-2025.01",
         "repo": "u-boot-rockchip",
         "type": "github"
       }

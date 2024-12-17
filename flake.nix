@@ -6,7 +6,7 @@
       # url = "github:u-boot/u-boot"; # ?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e";
       # url = "github:u-boot/u-boot";
       # url = "github:rockchip-linux/u-boot";
-      url = "github:Kwiboo/u-boot-rockchip";
+      url = "github:Kwiboo/u-boot-rockchip/rk3xxx-2025.01";
     };
   };
   description = "NixOS HardKernel Odroid M1S image";
