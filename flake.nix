@@ -3,10 +3,10 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     uboot-src = {
       flake = false;
-      # url = "github:u-boot/u-boot?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e"; # this is the current nixos version of u-boot
+      # url = "github:u-boot/u-boot"; # ?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e";
       # url = "github:u-boot/u-boot";
       # url = "github:rockchip-linux/u-boot";
-      url = "github:Kwiboo/u-boot-rockchip";
+      url = "github:Kwiboo/u-boot-rockchip/rk3xxx-2025.01";
     };
   };
   description = "NixOS HardKernel Odroid M1S image";
@@ -20,26 +20,45 @@
         extraMakeFlags = [
           "ROCKCHIP_TPL=${aarch64pkgs.rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.21.bin"
         ];
-        defconfig = "odroid-m1s-rk3566_defconfig";
         extraMeta = {
           platforms = [ "aarch64-linux" ];
           license = x86_64pkgs.lib.licenses.unfreeRedistributableFirmware;
         };
         src = uboot-src;
         version = uboot-src.rev;
+        defconfig = "odroid-m1s-rk3566_defconfig";
         filesToInstall = [
-          "u-boot.itb"
-          "idbloader.img"
-          "u-boot-rockchip.bin"
-          "spl/u-boot-spl.bin"
+          "u-boot.bin"
+          # "u-boot-rockchip.bin"
         ];
-        patches = [
-          #   ./uboot/0001-wip.patch
-        ];
-        # does not exist for rk3566 I think
         BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
+
       };
-      dtb = ./dtbs/rockchip/rk3566-odroid-m1s.dtb;
+      # uboot = x86_64pkgs.pkgsCross.aarch64-multiplatform.buildUBoot rec {
+      #   extraMakeFlags = [
+      #     "ROCKCHIP_TPL=${aarch64pkgs.rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.21.bin"
+      #   ];
+      #   defconfig = "generic-rk3568_defconfig";
+      #   extraMeta = {
+      #     platforms = [ "aarch64-linux" ];
+      #     license = x86_64pkgs.lib.licenses.unfreeRedistributableFirmware;
+      #   };
+      #   src = uboot-src;
+      #   version = uboot-src.rev;
+      #   filesToInstall = [
+      #     "u-boot.itb"
+      #     "idbloader.img"
+      #     "u-boot-rockchip.bin"
+      #     "spl/u-boot-spl.bin"
+      #   ];
+      #   # patches = [
+      #   #   ./uboot/0001-wip.patch
+      #   # ];
+      #   # does not exist for rk3566 I think
+      #
+      # };
+
+
     in
     rec {
       nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
@@ -58,6 +77,7 @@
                   });
                 })
                 (self: super: {
+
                   uboot = super.uboot;
                 })
 
@@ -65,56 +85,45 @@
               nixpkgs.hostPlatform.system = aarch64system;
             })
             (
-              { pkgs, config, ... }:
+              { lib, pkgs, config, ... }:
               {
                 imports = [
-                  # ./kboot-conf
-                  "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-                  # "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64-new-kernel-installer.nix"
-                  ({
-                    nixpkgs.overlays =
-                      [
-                        (self: super: {
-                          uboot = super.uboot;
-                        })
-                      ];
-                  })
+                  (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+                    {
+                      inherit config lib;
+                      pkgs = import nixpkgs {
+                        system = "${aarch64system}";
+                        overlays = [
+                          (self: super: {
+                            uboot = super.uboot;
+                          })
+                        ];
+                      };
+
+                    })
                 ];
-                # boot.loader.grub.enable = false;
-                # boot.loader.kboot-conf.enable = true;
-                nix.package = pkgs.nixFlakes;
+
+                nix.package = pkgs.nixVersions.stable;
                 nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
                 nix.extraOptions = ''
                   experimental-features = nix-command flakes
                 '';
                 boot.kernelPackages = pkgs.linuxPackages_latest;
                 boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
-                # system.boot.loader.kernelFile = "bzImage";
-                boot.kernelParams = [ "console=ttyS2,1500000" "debug" "earlyprintk=ttyS2,1500000" ];
-                # boot.initrd.availableKernelModules = [
-                #   "nvme"
-                #   "nvme-core"
-                #   "phy-rockchip-naneng-combphy"
-                #   "phy-rockchip-snps-pcie3"
-                # ];
+                boot.kernelParams = [ "debug" "console=ttyS2,1500000" ];
+                boot.initrd.availableKernelModules = [
+                  "nvme"
+                  "nvme-core"
+                ];
                 hardware.deviceTree.enable = true;
                 hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
-                system.stateVersion = "24.05";
+                system.stateVersion = "25.05";
                 sdImage = {
                   compressImage = false;
                   firmwareSize = 50;
-                  populateFirmwareCommands =
-                    ''
-                      cp "${uboot}/u-boot-rockchip.bin" firmware/
-                      cp "${uboot}/u-boot.itb" firmware/
-                      cp "${uboot}/idbloader.img" firmware/
-                      cp "${uboot}/u-boot-spl.bin" firmware/
-                    '';
-                  #   cp "${dtb}" firmware/rockchip/rk3566-odroid-m1s.dtb
-                  # postBuildCommands = ''
-                  # '';
-                  # populateRootCommands = ''
-                  # '';
+                  populateFirmwareCommands = ''
+                    cp ${uboot}/u-boot.bin firmware/
+                  '';
                 };
 
                 services.openssh = {
@@ -135,7 +144,7 @@
 
         all = pkgs.symlinkJoin {
           name = "all";
-          paths = [ images.odroid-m1s uboot ];
+          paths = [ images.odroid-m1s ];
         };
       };
 
