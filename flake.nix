@@ -28,7 +28,7 @@
           inherit system;
         };
 
-        packages = rec {
+        packages = {
           uboot = pkgs.buildUBoot {
             extraMakeFlags = [
               "ROCKCHIP_TPL=${pkgs.rkbin}/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_eyescan_v1.11.bin"
@@ -45,71 +45,11 @@
             BL31 = "${pkgs.rkbin}/bin/rk35/rk3588_bl31_v1.47.elf";
           };
 
-          odroid-m2 = nixpkgs.lib.nixosSystem
-            {
-              system = system;
-              modules = [
-                {
-                  nixpkgs.overlays = [
-                    (_: super: {
-                      makeModulesClosure = x:
-                        super.makeModulesClosure (x // { allowMissing = true; });
-                    })
-                    (_: super: {
-                      zfs = super.zfs.overrideAttrs (_: {
-                        meta.platforms = [ ];
-                      });
-                    })
-
-                  ];
-                  nixpkgs.hostPlatform.system = system;
-                }
-                (
-                  { pkgs, ... }:
-                  {
-                    imports = [
-                      (import "${pkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
-                    ];
-
-                    nix.package = pkgs.nixVersions.stable;
-                    nix.nixPath = [ "nixpkgs=${pkgs}" ];
-                    nix.extraOptions = ''
-                      experimental-features = nix-command flakes
-                    '';
-                    boot.kernelPackages = pkgs.linuxPackages_latest;
-                    boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
-                    boot.kernelParams = [ "debug" "console=ttyS2,1500000" ];
-                    boot.initrd.availableKernelModules = [
-                      "nvme"
-                      "nvme-core"
-                    ];
-                    hardware.deviceTree.enable = true;
-                    hardware.deviceTree.name = "rockchip/rk3588s-odroid-m2.dtb";
-                    system.stateVersion = "25.05";
-                    sdImage = {
-                      compressImage = false;
-                      firmwareSize = 50;
-                      populateFirmwareCommands = ''
-                        cp ${uboot}/u-boot.bin firmware/
-                      '';
-                    };
-
-                    services.openssh = {
-                      enable = true;
-                      settings.PermitRootLogin = "yes";
-                    };
-                    users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
-                  }
-                )
-
-              ];
-            };
-
-          images.odroid-m2 = odroid-m2.config.system.build.sdImage;
+          # images.odroid-m2 = config.flake.nixosConfiguration.odroid-m2.config.system.build.sdImage;
 
           default = pkgs.symlinkJoin {
             name = "all";
-            paths = [ images.odroid-m2 uboot ];
+            paths = [ config.packages.uboot ];
           };
         };
 
@@ -141,6 +81,69 @@
         };
 
       };
+    flake = {
+      nixosConfiguration.odroid-m2 = { config, ... }: nixpkgs.lib.nixosSystem
+        {
+          system = "aarch64-linux";
+          modules = [
+            {
+              nixpkgs.overlays = [
+                (_: super: {
+                  makeModulesClosure = x:
+                    super.makeModulesClosure (x // { allowMissing = true; });
+                })
+                (_: super: {
+                  zfs = super.zfs.overrideAttrs (_: {
+                    meta.platforms = [ ];
+                  });
+                })
+
+              ];
+              nixpkgs.hostPlatform.system = "aarch64-linux";
+            }
+            (
+              { pkgs, ... }:
+              {
+                imports = [
+                  (import "${pkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
+                ];
+
+                nix.package = pkgs.nixVersions.stable;
+                nix.nixPath = [ "nixpkgs=${pkgs}" ];
+                nix.extraOptions = ''
+                  experimental-features = nix-command flakes
+                '';
+                boot.kernelPackages = pkgs.linuxPackages_latest;
+                boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
+                boot.kernelParams = [ "debug" "console=ttyS2,1500000" ];
+                boot.initrd.availableKernelModules = [
+                  "nvme"
+                  "nvme-core"
+                ];
+                hardware.deviceTree.enable = true;
+                hardware.deviceTree.name = "rockchip/rk3588s-odroid-m2.dtb";
+                system.stateVersion = "25.05";
+                sdImage = {
+                  compressImage = false;
+                  firmwareSize = 50;
+                  populateFirmwareCommands = ''
+                    cp ${config.packages.uboot}/u-boot.bin firmware/
+                  '';
+                };
+
+                services.openssh = {
+                  enable = true;
+                  settings.PermitRootLogin = "yes";
+                };
+                users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
+              }
+            )
+
+          ];
+        };
+
+
+    };
   };
 }
 
