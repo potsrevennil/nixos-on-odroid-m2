@@ -11,7 +11,7 @@
     };
   };
   description = "NixOS HardKernel Odroid M2 image";
-  outputs = inputs@{ flake-parts, uboot-src, ... }: flake-parts.lib.mkFlake { inherit inputs; } {
+  outputs = inputs@{ nixpkgs, flake-parts, uboot-src, ... }: flake-parts.lib.mkFlake { inherit inputs; } {
     imports = [ ];
     systems = [ "aarch64-linux" "aarch64-darwin" ];
     perSystem = { pkgs, system, config, ... }:
@@ -45,7 +45,7 @@
             BL31 = "${pkgs.rkbin}/bin/rk35/rk3588_bl31_v1.47.elf";
           };
 
-          nixosConfigurations.odroid-m2 = pkgs.lib.nixosSystem
+          nixosConfigurations.odroid-m2 = nixpkgs.lib.nixosSystem
             {
               system = system;
               modules = [
