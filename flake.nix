@@ -28,7 +28,7 @@
           inherit system;
         };
 
-        packages = {
+        packages = rec {
           uboot = pkgs.buildUBoot {
             extraMakeFlags = [
               "ROCKCHIP_TPL=${pkgs.rkbin}/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_eyescan_v1.11.bin"
@@ -45,7 +45,7 @@
             BL31 = "${pkgs.rkbin}/bin/rk35/rk3588_bl31_v1.47.elf";
           };
 
-          nixosConfigurations.odroid-m2 = nixpkgs.lib.nixosSystem
+          odroid-m2 = nixpkgs.lib.nixosSystem
             {
               system = system;
               modules = [
@@ -90,7 +90,7 @@
                       compressImage = false;
                       firmwareSize = 50;
                       populateFirmwareCommands = ''
-                        cp ${config.packages.uboot}/u-boot.bin firmware/
+                        cp ${uboot}/u-boot.bin firmware/
                       '';
                     };
 
@@ -104,11 +104,12 @@
 
               ];
             };
-          images.odroid-m2 = config.packages.nixosConfigurations.odroid-m2.config.system.build.sdImage;
+
+          images.odroid-m2 = odroid-m2.config.system.build.sdImage;
 
           default = pkgs.symlinkJoin {
             name = "all";
-            paths = [ config.packages.images.odroid-m2 config.packages.uboot ];
+            paths = [ images.odroid-m2 uboot ];
           };
         };
 
