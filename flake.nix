@@ -3,87 +3,74 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     uboot-src = {
       flake = false;
-      # url = "github:u-boot/u-boot"; # ?rev=866ca972d6c3cabeaf6dbac431e8e08bb30b3c8e";
-      # url = "github:u-boot/u-boot";
-      # url = "github:rockchip-linux/u-boot";
-      url = "github:Kwiboo/u-boot-rockchip/rk3xxx-2025.01";
+      url = "github:Kwiboo/u-boot-rockchip/rk3xxx-2025.04";
     };
   };
   description = "NixOS HardKernel Odroid M1S image";
-  outputs = { self, nixpkgs, uboot-src, ... }:
+  outputs = { nixpkgs, uboot-src, ... }:
     let
-      aarch64system = "aarch64-linux";
-      x86_64pkgs = import nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
-      aarch64pkgs = import nixpkgs { system = "aarch64-linux"; config.allowUnfree = true; };
-      pkgs = x86_64pkgs;
-      uboot = x86_64pkgs.pkgsCross.aarch64-multiplatform.buildUBoot rec {
+      system = "aarch64-linux";
+      pkgs = import nixpkgs { system = "aarch64-linux"; config.allowUnfree = true; };
+
+      rkbin = pkgs.rkbin.overrideAttrs (_: {
+        version = "unstable-2025.01.24";
+        src = pkgs.fetchFromGitHub {
+          owner = "rockchip-linux";
+          repo = "rkbin";
+          rev = "f43a462e7a1429a9d407ae52b4745033034a6cf9";
+          hash = "sha256-geESfZP8ynpUz/i/thpaimYo3kzqkBX95gQhMBzNbmk=";
+        };
+
+        passthru = {
+          BL31_RK3568 = "${rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
+          BL31_RK3588 = "${rkbin}/bin/rk35/rk3588_bl31_v1.48.elf";
+          TPL_RK3566 = "${rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.23.bin";
+          TPL_RK3568 = "${rkbin}/bin/rk35/rk3568_ddr_1056MHz_v1.23.bin";
+          TPL_RK3588 = "${rkbin}/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin";
+        };
+      });
+
+      uboot = pkgs.buildUBoot {
         extraMakeFlags = [
-          "ROCKCHIP_TPL=${aarch64pkgs.rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.21.bin"
+          "ROCKCHIP_TPL=${rkbin}/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin"
         ];
         extraMeta = {
           platforms = [ "aarch64-linux" ];
-          license = x86_64pkgs.lib.licenses.unfreeRedistributableFirmware;
+          license = pkgs.lib.licenses.unfreeRedistributableFirmware;
         };
         src = uboot-src;
         version = uboot-src.rev;
-        defconfig = "odroid-m1s-rk3566_defconfig";
+        defconfig = "odroid-m2-rk3588s_defconfig";
         filesToInstall = [
           "u-boot.bin"
           "u-boot-rockchip.bin"
           "idbloader.img"
           "u-boot.itb"
         ];
-        BL31 = "${aarch64pkgs.rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
-
+        BL31 = "${rkbin}/bin/rk35/rk3588_bl31_v1.48.elf";
       };
-      # uboot = x86_64pkgs.pkgsCross.aarch64-multiplatform.buildUBoot rec {
-      #   extraMakeFlags = [
-      #     "ROCKCHIP_TPL=${aarch64pkgs.rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.21.bin"
-      #   ];
-      #   defconfig = "generic-rk3568_defconfig";
-      #   extraMeta = {
-      #     platforms = [ "aarch64-linux" ];
-      #     license = x86_64pkgs.lib.licenses.unfreeRedistributableFirmware;
-      #   };
-      #   src = uboot-src;
-      #   version = uboot-src.rev;
-      #   filesToInstall = [
-      #     "u-boot.itb"
-      #     "idbloader.img"
-      #     "u-boot-rockchip.bin"
-      #     "spl/u-boot-spl.bin"
-      #   ];
-      #   # patches = [
-      #   #   ./uboot/0001-wip.patch
-      #   # ];
-      #   # does not exist for rk3566 I think
-      #
-      # };
-
-
     in
     rec {
-      nixosConfigurations.odroid-m1s = nixpkgs.lib.nixosSystem
+      nixosConfigurations.odroid-m2 = nixpkgs.lib.nixosSystem
         {
-          system = "${aarch64system}";
+          system = "${system}";
           modules = [
-            ({
+            {
               nixpkgs.overlays = [
-                (final: super: {
+                (_: super: {
                   makeModulesClosure = x:
                     super.makeModulesClosure (x // { allowMissing = true; });
                 })
-                (final: super: {
+                (_: super: {
                   zfs = super.zfs.overrideAttrs (_: {
                     meta.platforms = [ ];
                   });
                 })
-
               ];
-              nixpkgs.hostPlatform.system = aarch64system;
-            })
+              nixpkgs.hostPlatform.system = system;
+            }
             (
-              { lib, pkgs, config, ... }:
+              { pkgs, ... }:
               {
                 imports = [
                   (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
@@ -102,7 +89,7 @@
                   "nvme-core"
                 ];
                 hardware.deviceTree.enable = true;
-                hardware.deviceTree.name = "rockchip/rk3566-odroid-m1s.dtb";
+                hardware.deviceTree.name = "rockchip/rk3588s-odroid-m2.dtb";
                 system.stateVersion = "25.05";
                 sdImage = {
                   compressImage = false;
@@ -119,38 +106,32 @@
                 users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
               }
             )
-
           ];
-
         };
-      images.odroid-m1s = nixosConfigurations.odroid-m1s.config.system.build.sdImage;
 
-      packages = rec {
-        x86_64-linux.default = packages.all;
+      images.odroid-m2 = nixosConfigurations.odroid-m2.config.system.build.sdImage;
+
+      packages = {
+        aarch64-linux.default = packages.all;
 
         all = pkgs.symlinkJoin {
           name = "all";
-          paths = [ images.odroid-m1s uboot ];
+          paths = [ images.odroid-m2 uboot ];
         };
       };
 
-      devShells.x86_64-linux.default = x86_64pkgs.mkShell
-        {
-          buildInputs = with x86_64pkgs;
-            [
-              dtc
-              minicom
-              screen
-              picocom
-              usbutils
-              zlib
-              bison
-              flex
-              gcc
-            ];
+      devShells.aarch64-linux.default = pkgs.mkShellNoCC { };
+      devShells.aarch64-darwin.default =
+        let
+          pkgs = import nixpkgs { system = "aarch64-darwin"; config.allowUnfree = true; };
+        in
+        pkgs.mkShellNoCC {
+          packages =
+            builtins.attrValues {
+              inherit (pkgs) minicom screen;
+            };
         };
     };
-
 }
 
 

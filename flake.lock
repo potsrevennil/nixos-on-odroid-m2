@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1734119587,
-        "narHash": "sha256-AKU6qqskl0yf2+JdRdD0cfxX4b9x3KKV5RqA6wijmPM=",
+        "lastModified": 1749285348,
+        "narHash": "sha256-frdhQvPbmDYaScPFiCnfdh3B/Vh81Uuoo0w5TkWmmjU=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "3566ab7246670a43abd2ffa913cc62dad9cdf7d5",
+        "rev": "3e3afe5174c561dee0df6f2c2b2236990146329f",
         "type": "github"
       },
       "original": {
@@ -25,16 +25,16 @@
     "uboot-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1732226113,
-        "narHash": "sha256-GKJbwFdKYw2bJtY3kiIXJ0j6PFtxWhyytxJ0vurx6ZE=",
+        "lastModified": 1739314954,
+        "narHash": "sha256-xUzzkLZyza5D6zvUSrgCWJCVlWlmhs5XxkivNteDzn4=",
         "owner": "Kwiboo",
         "repo": "u-boot-rockchip",
-        "rev": "2c25ffce35e406f21e4250e89249830c0e7bca9d",
+        "rev": "228e9e5b3502ec0e3aac3fae38d9d99f77e9ede1",
         "type": "github"
       },
       "original": {
         "owner": "Kwiboo",
-        "ref": "rk3xxx-2025.01",
+        "ref": "rk3xxx-2025.04",
         "repo": "u-boot-rockchip",
         "type": "github"
       }
