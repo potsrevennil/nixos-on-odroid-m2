@@ -35,9 +35,7 @@ jobs:
         id: build
         run: |
           nix build
-          tar cvhzf images.tar.gz \
-            ./result/sd-image/ \
-            ./result/u-boot-rockchip.bin
+          tar cvhzf images.tar.gz ./result/sd-image/
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2.2.2
@@ -56,6 +54,5 @@ jobs:
             The downloadable archive `images.tar.gz` contains:
 
             - **`nixos-sd-image-*.img`** — The bootable NixOS system image for Odroid M2.
-            - **`u-boot-rockchip.bin`** — The U-Boot bootloader binary customized for Odroid M2.
           files: |
             images.tar.gz

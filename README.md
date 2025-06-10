@@ -25,7 +25,6 @@ If you just want to see if the board boots correctly:
 
 ```bash
 dd if=./result/sd-image/nixos-sd-image-[...] of=/dev/sdX status=progress
-dd if=./result/u-boot-rockchip.bin of=/dev/sdX bs=32k seek=1 conv=fsync
 ```
 
 To boot from the SD card, make sure to switch the boot mode from eMMC to microSD
@@ -51,11 +50,10 @@ Then insert the SD card into the Odroid M2, power it on, and see if it boots.
 
     Or download a pre-built image from my [GitHub Releases](https://github.com/potsrevennil/nixos-on-odroid-m2/releases).
 
-4. Write the NixOS image and U-Boot to the eMMC:
+4. Write the NixOS image to the eMMC:
 
     ```bash
     dd if=./result/sd-image/nixos-sd-image-*.img of=/dev/sdX status=progress
-    dd if=./result/u-boot-rockchip.bin of=/dev/sdX bs=32k seek=1 conv=fsync
     ```
 
 5. Power off the board, remove the SD card, and restart. It should now boot from eMMC.

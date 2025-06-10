@@ -6,7 +6,7 @@
       url = "github:Kwiboo/u-boot-rockchip/rk3xxx-2025.04";
     };
   };
-  description = "NixOS HardKernel Odroid M1S image";
+  description = "NixOS HardKernel Odroid M2 image";
   outputs = { nixpkgs, uboot-src, ... }:
     let
       system = "aarch64-linux";
@@ -76,34 +76,55 @@
                   (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
                 ];
 
-                nix.package = pkgs.nixVersions.stable;
-                nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
-                nix.extraOptions = ''
-                  experimental-features = nix-command flakes
-                '';
-                boot.kernelPackages = pkgs.linuxPackages_latest;
-                boot.supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
-                boot.kernelParams = [ "debug" "console=ttyS2,1500000" ];
-                boot.initrd.availableKernelModules = [
-                  "nvme"
-                  "nvme-core"
-                ];
-                hardware.deviceTree.enable = true;
-                hardware.deviceTree.name = "rockchip/rk3588s-odroid-m2.dtb";
+                nix = {
+                  package = pkgs.nixVersions.stable;
+                  nixPath = [ "nixpkgs=${nixpkgs}" ];
+                  extraOptions = ''
+                    experimental-features = nix-command flakes
+                  '';
+                };
+
+                boot = {
+                  kernelPackages = pkgs.linuxPackages_latest;
+                  supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
+                  kernelParams = [ "debug" "console=ttyS2,1500000" ];
+                  initrd.availableKernelModules = [
+                    "nvme"
+                    "nvme-core"
+                  ];
+                };
+
+                hardware.deviceTree = {
+                  enable = true;
+                  name = "rockchip/rk3588s-odroid-m2.dtb";
+                };
+
                 system.stateVersion = "25.05";
+
                 sdImage = {
                   compressImage = false;
                   firmwareSize = 50;
                   populateFirmwareCommands = ''
                     cp ${uboot}/u-boot.bin firmware/
                   '';
+                  postBuildCommands = ''
+                    dd if=${uboot}/u-boot-rockchip.bin of=$img bs=32k seek=1 conv=notrunc,fsync
+                  '';
                 };
+
+                networking.networkmanager.enable = true;
 
                 services.openssh = {
                   enable = true;
                   settings.PermitRootLogin = "yes";
                 };
-                users.extraUsers.root.initialPassword = pkgs.lib.mkForce "odroid";
+
+                users = {
+                  users.root = {
+                    extraGroups = [ "networkmanager" ];
+                    initialPassword = pkgs.lib.mkForce "odroid";
+                  };
+                };
               }
             )
           ];
@@ -116,7 +137,7 @@
 
         all = pkgs.symlinkJoin {
           name = "all";
-          paths = [ images.odroid-m2 uboot ];
+          paths = [ images.odroid-m2 ];
         };
       };
 
@@ -128,7 +149,11 @@
         pkgs.mkShellNoCC {
           packages =
             builtins.attrValues {
-              inherit (pkgs) minicom screen;
+              inherit (pkgs) minicom screen
+                nixpkgs-fmt
+                nixd
+                deadnix
+                statix;
             };
         };
     };
