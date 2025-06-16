@@ -86,7 +86,7 @@
 
                 boot = {
                   kernelPackages = pkgs.linuxPackages_latest;
-                  supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs" "ext2" ];
+                  supportedFilesystems = pkgs.lib.mkForce [ "btrfs" "vfat" "ext2" ];
                   kernelParams = [ "debug" "console=ttyS2,1500000" ];
                   initrd.availableKernelModules = [
                     "nvme"
