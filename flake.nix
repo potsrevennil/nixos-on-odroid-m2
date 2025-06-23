@@ -61,11 +61,6 @@
                   makeModulesClosure = x:
                     super.makeModulesClosure (x // { allowMissing = true; });
                 })
-                (_: super: {
-                  zfs = super.zfs.overrideAttrs (_: {
-                    meta.platforms = [ ];
-                  });
-                })
               ];
               nixpkgs.hostPlatform.system = system;
             }
@@ -103,12 +98,14 @@
 
                 sdImage = {
                   compressImage = false;
-                  firmwareSize = 50;
+                  firmwareSize = 300;
                   populateFirmwareCommands = ''
                     cp ${uboot}/u-boot.bin firmware/
                   '';
                   postBuildCommands = ''
                     dd if=${uboot}/u-boot-rockchip.bin of=$img bs=32k seek=1 conv=notrunc,fsync
+                    parted $img rm 1
+                    parted $img mkpart primary ext4 8M 308MB
                   '';
                 };
 
