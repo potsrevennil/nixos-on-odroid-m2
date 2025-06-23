@@ -104,8 +104,6 @@
                   '';
                   postBuildCommands = ''
                     dd if=${uboot}/u-boot-rockchip.bin of=$img bs=32k seek=1 conv=notrunc,fsync
-                    parted $img rm 1
-                    parted $img mkpart primary ext4 8M 308MB
                   '';
                 };
 
