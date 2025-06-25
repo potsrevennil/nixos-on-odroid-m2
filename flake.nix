@@ -144,7 +144,7 @@
         pkgs.mkShellNoCC {
           packages =
             builtins.attrValues {
-              inherit (pkgs) minicom screen
+              inherit (pkgs) picocom
                 nixpkgs-fmt
                 nixd
                 deadnix
