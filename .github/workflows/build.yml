@@ -35,7 +35,10 @@ jobs:
         id: build
         run: |
           nix build
-          tar cvhzf images.tar.gz ./result/sd-image/
+          # Execute the script to generate images
+          sudo ./result --build-memory 4096
+          # Package the generated images
+          tar cvhzf images.tar.gz *.raw
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2.2.2
@@ -53,6 +56,14 @@ jobs:
 
             The downloadable archive `images.tar.gz` contains:
 
-            - **`nixos-sd-image-*.img`** — The bootable NixOS system image for Odroid M2.
+            - **`main.raw`** — The bootable NixOS disk image for Odroid M2 (built with disko).
+
+            ## 🚀 Usage
+
+            1. Extract the archive: `tar -xzf images.tar.gz`
+            2. Flash to SD card/eMMC: `dd if=main.raw of=/dev/sdX bs=4M status=progress`
+            3. Boot your Odroid M2!
+
+            Default login: `root` / `odroid`
           files: |
             images.tar.gz
