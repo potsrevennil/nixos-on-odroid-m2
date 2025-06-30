@@ -34,7 +34,7 @@ jobs:
       - name: nix build
         id: build
         run: |
-          nix build
+          nix build -vvv
           tar cvhzf images.tar.gz ./result/sd-image/
       - name: Create GitHub Release
         id: create_release
