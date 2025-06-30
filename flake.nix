@@ -5,9 +5,16 @@
       flake = false;
       url = "github:Kwiboo/u-boot-rockchip/rk3xxx-2025.04";
     };
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
   description = "NixOS HardKernel Odroid M2 image";
-  outputs = { nixpkgs, uboot-src, ... }:
+  outputs = { nixpkgs, uboot-src, disko, nixos-hardware, ... }:
     let
       system = "aarch64-linux";
       pkgs = import nixpkgs { system = "aarch64-linux"; config.allowUnfree = true; };
@@ -68,7 +75,9 @@
               { pkgs, ... }:
               {
                 imports = [
-                  (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
+                  disko.nixosModules.disko
+                  "${nixos-hardware}/rockchip"
+                  "${nixos-hardware}/rockchip/disko.nix"
                 ];
 
                 nix = {
@@ -92,20 +101,13 @@
                 hardware.deviceTree = {
                   enable = true;
                   name = "rockchip/rk3588s-odroid-m2.dtb";
+                  rockchip = {
+                    enable = true;
+                    platformFirmware = pkgs.lib.mkDefault uboot;
+                  };
                 };
 
                 system.stateVersion = "25.05";
-
-                sdImage = {
-                  compressImage = false;
-                  firmwareSize = 300;
-                  populateFirmwareCommands = ''
-                    cp ${uboot}/u-boot.bin firmware/
-                  '';
-                  postBuildCommands = ''
-                    dd if=${uboot}/u-boot-rockchip.bin of=$img bs=32k seek=1 conv=notrunc,fsync
-                  '';
-                };
 
                 networking.networkmanager.enable = true;
 
