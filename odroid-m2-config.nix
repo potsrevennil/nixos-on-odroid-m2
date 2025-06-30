@@ -24,13 +24,16 @@
     ];
   };
 
-  hardware.deviceTree = {
-    enable = true;
-    name = "rockchip/rk3588s-odroid-m2.dtb";
+  hardware = {
+    deviceTree = {
+      enable = true;
+      name = "rockchip/rk3588s-odroid-m2.dtb";
+    };
     rockchip = {
       enable = true;
       platformFirmware = pkgs.lib.mkDefault uboot;
     };
+
   };
 
   system.stateVersion = "25.05";
