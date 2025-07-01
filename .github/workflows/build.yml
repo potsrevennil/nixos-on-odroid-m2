@@ -36,7 +36,7 @@ jobs:
         run: |
           nix build
           # Execute the script to generate images
-          ./result --build-memory 4096
+          sudo ./result --build-memory 4096
           # Package the generated images
           tar cvhzf images.tar.gz *.raw
       - name: Create GitHub Release
