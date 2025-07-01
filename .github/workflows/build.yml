@@ -35,7 +35,6 @@ jobs:
         id: build
         run: |
           nix build
-          ./result --help
           # Execute the script to generate images
           ./result --build-memory 4096
           # Package the generated images
@@ -58,13 +57,13 @@ jobs:
             The downloadable archive `images.tar.gz` contains:
 
             - **`main.raw`** — The bootable NixOS disk image for Odroid M2 (built with disko).
-            
+
             ## 🚀 Usage
-            
+
             1. Extract the archive: `tar -xzf images.tar.gz`
             2. Flash to SD card/eMMC: `dd if=main.raw of=/dev/sdX bs=4M status=progress`
             3. Boot your Odroid M2!
-            
+
             Default login: `root` / `odroid`
           files: |
             images.tar.gz
