@@ -77,15 +77,10 @@
           ];
         };
 
-      images.odroid-m2 = nixosConfigurations.odroid-m2.config.system.build.diskoImagesScript;
+      images.odroid-m2-build-script = nixosConfigurations.odroid-m2.config.system.build.diskoImagesScript;
 
       packages = {
-        aarch64-linux.default = packages.all;
-
-        all = pkgs.symlinkJoin {
-          name = "all";
-          paths = [ images.odroid-m2 ];
-        };
+        aarch64-linux.default = images.odroid-m2-build-script;
       };
 
       devShells.aarch64-linux.default = pkgs.mkShellNoCC { };

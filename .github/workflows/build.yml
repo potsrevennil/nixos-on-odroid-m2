@@ -34,25 +34,26 @@ jobs:
       - name: nix build
         id: build
         run: |
-          nix build -vvv
-          tar cvhzf images.tar.gz ./result/sd-image/
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v2.2.2
-        with:
-          name: Release ${{ github.ref_name }}
-          tag_name: ${{ github.ref_name }}
-          body: |
-            # Release: Pre-built NixOS Image for Odroid M2
-
-            This release provides a **pre-built NixOS image** tailored for the Odroid M2 board, enabling you to get started without having to build from source.
-
-            ---
-
-            ## 📦 Included Files
-
-            The downloadable archive `images.tar.gz` contains:
-
-            - **`nixos-sd-image-*.img`** — The bootable NixOS system image for Odroid M2.
-          files: |
-            images.tar.gz
+          nix build
+          ./result --help
+          # tar cvhzf images.tar.gz ./result/sd-image/
+      # - name: Create GitHub Release
+      #   id: create_release
+      #   uses: softprops/action-gh-release@v2.2.2
+      #   with:
+      #     name: Release ${{ github.ref_name }}
+      #     tag_name: ${{ github.ref_name }}
+      #     body: |
+      #       # Release: Pre-built NixOS Image for Odroid M2
+      #
+      #       This release provides a **pre-built NixOS image** tailored for the Odroid M2 board, enabling you to get started without having to build from source.
+      #
+      #       ---
+      #
+      #       ## 📦 Included Files
+      #
+      #       The downloadable archive `images.tar.gz` contains:
+      #
+      #       - **`nixos-sd-image-*.img`** — The bootable NixOS system image for Odroid M2.
+      #     files: |
+      #       images.tar.gz
