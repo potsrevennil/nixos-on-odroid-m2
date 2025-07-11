@@ -62,30 +62,15 @@
         {
           system = "${system}";
           modules = [
-            {
-              nixpkgs.overlays = [
-                (_: super: {
-                  makeModulesClosure = x:
-                    super.makeModulesClosure (x // { allowMissing = true; });
-                })
-                (_: super: {
-                  zfs = super.zfs.overrideAttrs (_: {
-                    meta.platforms = [ ];
-                  });
-                })
-              ];
-              nixpkgs.hostPlatform.system = system;
-            }
             (import ./hardware-configuration.nix {
               inherit nixos-hardware disko nixpkgs uboot;
             })
           ];
         };
 
-      images.odroid-m2-build-script = nixosConfigurations.odroid-m2.config.system.build.diskoImagesScript;
-
       packages = {
-        aarch64-linux.default = images.odroid-m2-build-script;
+        aarch64-linux.default = nixosConfigurations.odroid-m2.config.system.build.diskoImages;
+        aarch64-linux.script = nixosConfigurations.odroid-m2.config.system.build.diskoImagesScript;
       };
 
       devShells.aarch64-linux.default = pkgs.mkShellNoCC { };

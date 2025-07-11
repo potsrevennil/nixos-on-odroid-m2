@@ -34,7 +34,7 @@ jobs:
       - name: nix build
         id: build
         run: |
-          nix build
+          nix build .#script
           # Execute the script to generate images
           sudo ./result --build-memory 4096
           # Package the generated images
