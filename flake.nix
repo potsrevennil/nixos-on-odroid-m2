@@ -1,4 +1,5 @@
 {
+  description = "NixOS HardKernel Odroid M2 image";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     uboot-src = {
@@ -12,84 +13,54 @@
     };
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
   };
-  description = "NixOS HardKernel Odroid M2 image";
-  outputs = { nixpkgs, uboot-src, disko, nixos-hardware, ... }:
-    let
-      system = "aarch64-linux";
-      pkgs = import nixpkgs { system = "aarch64-linux"; config.allowUnfree = true; };
-
-      rkbin = pkgs.rkbin.overrideAttrs (_: {
-        version = "unstable-2025.01.24";
-        src = pkgs.fetchFromGitHub {
-          owner = "rockchip-linux";
-          repo = "rkbin";
-          rev = "f43a462e7a1429a9d407ae52b4745033034a6cf9";
-          hash = "sha256-geESfZP8ynpUz/i/thpaimYo3kzqkBX95gQhMBzNbmk=";
-        };
-
-        passthru = {
-          BL31_RK3568 = "${rkbin}/bin/rk35/rk3568_bl31_v1.44.elf";
-          BL31_RK3588 = "${rkbin}/bin/rk35/rk3588_bl31_v1.48.elf";
-          TPL_RK3566 = "${rkbin}/bin/rk35/rk3566_ddr_1056MHz_v1.23.bin";
-          TPL_RK3568 = "${rkbin}/bin/rk35/rk3568_ddr_1056MHz_v1.23.bin";
-          TPL_RK3588 = "${rkbin}/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin";
-        };
-      });
-
-      uboot = pkgs.buildUBoot {
-        extraMakeFlags = [
-          "ROCKCHIP_TPL=${rkbin}/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin"
-        ];
-        extraMeta = {
-          platforms = [ "aarch64-linux" ];
-          license = pkgs.lib.licenses.unfreeRedistributableFirmware;
-        };
-        src = uboot-src;
-        version = uboot-src.rev;
-        defconfig = "odroid-m2-rk3588s_defconfig";
-        filesToInstall = [
-          "u-boot.bin"
-          "u-boot-rockchip.bin"
-          "idbloader.img"
-          "u-boot.itb"
-        ];
-        BL31 = "${rkbin}/bin/rk35/rk3588_bl31_v1.48.elf";
-      };
-    in
-    rec {
-      nixosConfigurations.odroid-m2 = nixpkgs.lib.nixosSystem
-        {
-          system = "${system}";
-          modules = [
-            (import ./hardware-configuration.nix {
-              inherit nixos-hardware disko nixpkgs uboot;
+  outputs = inputs@{ flake-parts, uboot-src, ... }: flake-parts.lib.mkFlake { inherit inputs; } {
+    imports = [ ./configuration.nix ];
+    systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
+    perSystem = { pkgs, lib, system, ... }:
+      let
+        wrapShell = mkShell: attrs:
+          mkShell (attrs // {
+            shellHook = ''
+              export PATH=$PWD/scripts:$PATH
+            '';
+          });
+      in
+      {
+        _module.args.pkgs = import inputs.nixpkgs {
+          inherit system;
+          overlays = [
+            (_:prev: lib.optionalAttrs prev.stdenv.isLinux {
+              rkbin = prev.callPackage ./rkbin.nix { rkbin = prev.rkbin; };
+              ubootOdroidM2 = prev.callPackage ./uboot.nix { inherit uboot-src; };
             })
           ];
         };
 
-      packages = {
-        aarch64-linux.default = nixosConfigurations.odroid-m2.config.system.build.diskoImages;
-        aarch64-linux.script = nixosConfigurations.odroid-m2.config.system.build.diskoImagesScript;
-      };
-
-      devShells.aarch64-linux.default = pkgs.mkShellNoCC { };
-      devShells.aarch64-darwin.default =
-        let
-          pkgs = import nixpkgs { system = "aarch64-darwin"; config.allowUnfree = true; };
-        in
-        pkgs.mkShellNoCC {
+        devShells.default = wrapShell pkgs.mkShellNoCC {
           packages =
             builtins.attrValues {
-              inherit (pkgs) picocom
+              inherit (pkgs)
+                direnv
+                nix-direnv
+
                 nixpkgs-fmt
-                nixd
                 deadnix
-                statix;
+                statix
+                picocom
+                ;
             };
         };
-    };
+
+        packages = lib.optionalAttrs pkgs.stdenv.isLinux {
+          default = inputs.self.nixosConfigurations.odroid-m2.config.system.build.diskoImages;
+          diskoScript = inputs.self.nixosConfigurations.odroid-m2.config.system.build.diskoImagesScript;
+        };
+      };
+  };
 }
-
-
-

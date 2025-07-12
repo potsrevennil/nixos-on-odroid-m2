@@ -1,4 +1,4 @@
-{ nixos-hardware, disko, nixpkgs, uboot, ... }:
+{ nixos-hardware, disko, nixpkgs, ... }:
 { config, pkgs, ... }:
 {
   imports = [
@@ -38,9 +38,9 @@
     };
     rockchip = {
       enable = true;
-      platformFirmware = pkgs.lib.mkDefault uboot;
+      platformFirmware = pkgs.lib.mkDefault pkgs.ubootOdroidM2;
       diskoExtraPostVM = ''
-        dd if=${uboot}/u-boot-rockchip.bin of=$out/${config.hardware.rockchip.diskoImageName} bs=32k seek=1 conv=notrunc,fsync
+        dd if=${pkgs.ubootOdroidM2}/u-boot-rockchip.bin of=$out/${config.hardware.rockchip.diskoImageName} bs=32k seek=1 conv=notrunc,fsync
       '';
     };
   };
